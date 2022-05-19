@@ -6,6 +6,9 @@
 #include <unistd.h>
 #include <math.h>
 
+#define MIN(a,b) (((a) < (b)) ? (a) : (b))
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+
 enum {
     PIPE_READ = 0,
     PIPE_WRITE
@@ -19,6 +22,17 @@ struct presence_state {
     char *details;
     int time_left;
 };
+
+void free_presence_state(struct presence_state *ps) { /*{{{*/
+    if(ps->state) {
+        free(ps->state);
+        ps->state = NULL;
+    }
+    if(ps->details) {
+        free(ps->details);
+        ps->details = NULL;
+    }
+} /*}}}*/
 
 // Functions to notify of events {{{
 void discord_on_ready(const DiscordUser *connected_user) {
@@ -59,10 +73,12 @@ void discord_update_presence(struct presence_state *ps) { /*{{{*/
 
     presence.state = ps->state;
     presence.details = ps->details;
-    presence.endTimestamp = time(NULL) + ps->time_left;
+    //presence.endTimestamp = time(NULL) + ps->time_left;
 
     Discord_UpdatePresence(&presence);
 } /*}}}*/
+
+void (*discord_clear_presence)(void) = Discord_ClearPresence;
 // }}}
 
 // CMUS {{{
@@ -348,21 +364,73 @@ int main() {
     // - change song if metadata changes
     // - free stuff on SIGTERM
 
+    // - if status != "playing", stop displaying rpc info
+    // - if song data suddenly changes (check every 1 sec), reset rpc data
+
     discord_init();
 
     struct cmus_state cs;
-    cmus_get_metadata(&cs);
     struct presence_state ps;
-    create_status(&cs, &ps);
 
-    printf("State: %s\n", ps.state);
-    printf("Deets: %s\n", ps.details);
-    printf("Timel: %d\n", ps.time_left);
+    int was_playing = 0;
+    struct presence_state old_ps;
+    memset(&old_ps, 0, sizeof(old_ps));
+    old_ps.state = (char*) malloc(1);
+    old_ps.state[0] = '\0';
+    old_ps.details = (char*) malloc(1);
+    old_ps.details[0] = '\0';
 
-    discord_update_presence(&ps);
-    sleep(ps.time_left);
+    while(1) {
+        cmus_get_metadata(&cs);
 
-    free_cmus_state(&cs);
+        if(cs.status == 1) {
+            create_status(&cs, &ps);
+
+            int changed = 0;
+            {
+                int old_state_len = strnlen(old_ps.state, 512);
+                int new_state_len = strnlen(    ps.state, 512);
+                int old_details_len = strnlen(old_ps.details, 512);
+                int new_details_len = strnlen(    ps.details, 512);
+
+                if( (was_playing == 0) ||
+                    (old_state_len   != new_state_len)   ||
+                    (old_details_len != new_details_len) ||
+                    (strncmp(old_ps.state,   ps.state,   MAX(old_state_len,   new_state_len))   != 0) ||
+                    (strncmp(old_ps.details, ps.details, MAX(old_details_len, new_details_len)) != 0) ) {
+
+                    changed = 1;
+                }
+            }
+
+            if(changed != 0) {
+                printf("[I]: Changed!\n");
+
+                printf("State: %s\n", ps.state);
+                printf("Deets: %s\n", ps.details);
+                //printf("Timel: %d\n", ps.time_left);
+
+                discord_update_presence(&ps);
+            }
+
+            was_playing = 1;
+
+            free_presence_state(&old_ps);
+            memcpy(&old_ps, &ps, sizeof(struct presence_state));
+
+        } else {
+            if(was_playing == 1) {
+                printf("[I]: Not playing\n");
+                was_playing = 0;
+
+                discord_clear_presence();
+            }
+        }
+
+        free_cmus_state(&cs);
+        sleep(1);
+    }
+
     discord_shutdown();
     return EXIT_SUCCESS;
 }
