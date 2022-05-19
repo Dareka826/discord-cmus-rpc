@@ -74,6 +74,29 @@ struct cmus_state {
     char *albumartist;
 };
 
+void free_cmus_state(struct cmus_state *c) { /*{{{*/
+    if(c->title) {
+        free(c->title);
+        c->title = NULL;
+    }
+    if(c->file) {
+        free(c->file);
+        c->file = NULL;
+    }
+    if(c->artist) {
+        free(c->artist);
+        c->artist = NULL;
+    }
+    if(c->album) {
+        free(c->album);
+        c->album = NULL;
+    }
+    if(c->albumartist) {
+        free(c->albumartist);
+        c->albumartist = NULL;
+    }
+} /*}}}*/
+
 /*
 status paused
 file /home/rin/Music/[SPACELECTRO] VOCALO EDM10 HEAVY/01. Spacelectro - Reincarnation feat. Hatsune Miku.opus
@@ -227,6 +250,8 @@ int main() {
     printf("track: %d\n", cs.tracknumber);
     printf("album: %s\n", cs.album);
     printf("album_artist: %s\n", cs.albumartist);
+
+    free_cmus_state(&cs);
 
     //discord_update_presence();
     //sleep(10);
