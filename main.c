@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <math.h>
 
 enum {
     PIPE_READ = 0,
@@ -12,6 +13,12 @@ enum {
 
 // DISCORD {{{
 const char * const APP_ID = "976582643938377749";
+
+struct presence_state {
+    char *state;
+    char *details;
+    int time_left;
+};
 
 // Functions to notify of events {{{
 void discord_on_ready(const DiscordUser *connected_user) {
@@ -41,7 +48,7 @@ void discord_init() {
 void (*discord_shutdown)(void) = Discord_Shutdown;
 
 // Queues up an updare to rpc status (one change per 15 secs)
-void discord_update_presence() { /*{{{*/
+void discord_update_presence(struct presence_state *ps) { /*{{{*/
     DiscordRichPresence presence;
     memset(&presence, 0, sizeof(presence));
 
@@ -50,10 +57,9 @@ void discord_update_presence() { /*{{{*/
     presence.largeImageKey = "cmus";
     presence.largeImageText = "C* Music Player";
 
-    presence.state = "State";
-    presence.details = "Details";
-
-    presence.endTimestamp = time(NULL) + 10; // 10 seconds from now
+    presence.state = ps->state;
+    presence.details = ps->details;
+    presence.endTimestamp = time(NULL) + ps->time_left;
 
     Discord_UpdatePresence(&presence);
 } /*}}}*/
@@ -233,6 +239,107 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
     }
 } /*}}}*/
 
+
+void create_status(struct cmus_state const * const cs,
+                   struct presence_state * const ps) {
+
+    // title?
+    //   artist?
+    //     tracknum?
+    //       state = track. artist - title
+    //     else
+    //       state = artist - title
+    //   else
+    //     tracknum?
+    //       state = track. title
+    //     else
+    //       state = title
+    // else
+    //   state = everything after last / in file
+    //
+    // album?
+    //   album_artist?
+    //     details = "[album_artist] album"
+    //   else
+    //     details = "album"
+    // else
+    //   details = ""
+
+    int state_len = 0;
+
+    if(cs->title) {
+        state_len += strnlen(cs->title, 512);
+
+        if(cs->artist) {
+            state_len += strnlen(cs->artist, 512);
+
+            if(cs->tracknumber >= 1) {
+                // track. artist - title
+                state_len += floor(log10(abs(cs->tracknumber))) + 1;
+                if(cs->tracknumber < 10) state_len++;
+
+                state_len += 2 + 3; // ". ",  " - "
+                ps->state = (char*) malloc(state_len+1);
+                memset(ps->state, 0, state_len+1);
+                snprintf(ps->state, state_len+1, "%02d. %s - %s", cs->tracknumber, cs->artist, cs->title);
+            } else {
+                // artist - title
+
+                state_len += 3; // " - "
+                ps->state = (char*) malloc(state_len+1);
+                memset(ps->state, 0, state_len+1);
+                snprintf(ps->state, state_len+1, "%s - %s", cs->artist, cs->title);
+            }
+        } else {
+            if(cs->tracknumber >= 1) {
+                // track. title
+                state_len += floor(log10(abs(cs->tracknumber))) + 1;
+                if(cs->tracknumber < 10) state_len++;
+
+                state_len += 2; // ". "
+                ps->state = (char*) malloc(state_len+1);
+                memset(ps->state, 0, state_len+1);
+                snprintf(ps->state, state_len+1, "%02d. %s", cs->tracknumber, cs->title);
+            } else {
+                // title
+
+                ps->state = (char*) malloc(state_len+1);
+                memset(ps->state, 0, state_len+1);
+                snprintf(ps->state, state_len+1, "%s", cs->title);
+            }
+        }
+    } else {
+        // file
+        ps->state = "<Not implemented>";
+    }
+
+    int details_len = 0;
+
+    if(cs->album) {
+        details_len += strnlen(cs->album, 512);
+
+        if(cs->albumartist) {
+            // [album_artist] album
+            details_len += strnlen(cs->albumartist, 512);
+
+            details_len += 3; // "[", "] "
+            ps->details = (char*) malloc(details_len+1);
+            memset(ps->details, 0, details_len+1);
+            snprintf(ps->details, details_len+1, "[%s] %s", cs->albumartist, cs->album);
+        } else {
+            // album
+
+            ps->details = (char*) malloc(details_len+1);
+            memset(ps->details, 0, details_len+1);
+            snprintf(ps->details, details_len+1, "%s", cs->album);
+        }
+    } else {
+        // empty
+        ps->details = "";
+    }
+
+    ps->time_left = cs->duration - cs->position;
+}
 // }}}
 
 int main() {
@@ -240,22 +347,17 @@ int main() {
 
     struct cmus_state cs;
     cmus_get_metadata(&cs);
+    struct presence_state ps;
+    create_status(&cs, &ps);
 
-    printf("status: %d\n", cs.status);
-    printf("position: %d\n", cs.position);
-    printf("duration: %d\n", cs.duration);
-    printf("title: %s\n", cs.title);
-    printf("file: %s\n", cs.file);
-    printf("artist: %s\n", cs.artist);
-    printf("track: %d\n", cs.tracknumber);
-    printf("album: %s\n", cs.album);
-    printf("album_artist: %s\n", cs.albumartist);
+    printf("State: %s\n", ps.state);
+    printf("Deets: %s\n", ps.details);
+    printf("Timel: %d\n", ps.time_left);
 
-    free_cmus_state(&cs);
-
-    //discord_update_presence();
+    //discord_update_presence(&ps);
     //sleep(10);
 
+    free_cmus_state(&cs);
     //discord_shutdown();
     return EXIT_SUCCESS;
 }
