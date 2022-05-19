@@ -66,7 +66,7 @@ void discord_update_presence(struct presence_state *ps) { /*{{{*/
 // }}}
 
 // CMUS {{{
-struct cmus_state {
+struct cmus_state { /*{{{*/
     int status; // 1 is playing
     unsigned int position;
     unsigned int duration;
@@ -78,7 +78,7 @@ struct cmus_state {
 
     char *album;
     char *albumartist;
-};
+}; /*}}}*/
 
 void free_cmus_state(struct cmus_state *c) { /*{{{*/
     if(c->title) {
@@ -103,7 +103,7 @@ void free_cmus_state(struct cmus_state *c) { /*{{{*/
     }
 } /*}}}*/
 
-/*
+/* Example Data {{{
 status paused
 file /home/rin/Music/[SPACELECTRO] VOCALO EDM10 HEAVY/01. Spacelectro - Reincarnation feat. Hatsune Miku.opus
 duration 298
@@ -113,7 +113,7 @@ tag albumartist SPACELECTRO
 tag artist Spacelectro
 tag title Reincarnation feat. Hatsune Miku
 tag tracknumber 1
-*/
+}}} */
 void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
     // Spawn cmus-remote and parse its output
     int pipefd[2];
@@ -240,7 +240,7 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
 } /*}}}*/
 
 
-void create_status(struct cmus_state const * const cs,
+void create_status(struct cmus_state const * const cs, /*{{{*/
                    struct presence_state * const ps) {
 
     // title?
@@ -339,11 +339,11 @@ void create_status(struct cmus_state const * const cs,
     }
 
     ps->time_left = cs->duration - cs->position;
-}
+} /*}}}*/
 // }}}
 
 int main() {
-    //discord_init();
+    discord_init();
 
     struct cmus_state cs;
     cmus_get_metadata(&cs);
@@ -354,10 +354,10 @@ int main() {
     printf("Deets: %s\n", ps.details);
     printf("Timel: %d\n", ps.time_left);
 
-    //discord_update_presence(&ps);
-    //sleep(10);
+    discord_update_presence(&ps);
+    sleep(20);
 
     free_cmus_state(&cs);
-    //discord_shutdown();
+    discord_shutdown();
     return EXIT_SUCCESS;
 }
