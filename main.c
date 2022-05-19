@@ -343,6 +343,11 @@ void create_status(struct cmus_state const * const cs, /*{{{*/
 // }}}
 
 int main() {
+    // TODO:
+    // - change status on pause/play
+    // - change song if metadata changes
+    // - free stuff on SIGTERM
+
     discord_init();
 
     struct cmus_state cs;
@@ -355,7 +360,7 @@ int main() {
     printf("Timel: %d\n", ps.time_left);
 
     discord_update_presence(&ps);
-    sleep(20);
+    sleep(ps.time_left);
 
     free_cmus_state(&cs);
     discord_shutdown();
