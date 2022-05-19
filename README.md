@@ -10,7 +10,8 @@ git submodule update --init
 cd discord-rpc
 ./build.py libs
 cd ..
-make```
+make
+```
 
 ## Running
 Just keep the resulting binary `cmus-rpcd` running and it will update the rpc status.
@@ -18,4 +19,5 @@ Just keep the resulting binary `cmus-rpcd` running and it will update the rpc st
 ## How the information is displayed
 ```
 [<album_artist>] <album>
-<track>. <artist> - <title>```
+<track>. <artist> - <title>
+```
