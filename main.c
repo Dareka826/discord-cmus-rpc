@@ -440,6 +440,7 @@ int main() {
     old_ps.details = (char*) xmalloc(1);
     old_ps.details[0] = '\0';
 
+    // Main logic{{{
     while(1) {
         cmus_get_metadata(&cs);
 
@@ -489,7 +490,7 @@ int main() {
 
         free_cmus_state(&cs);
         sleep(1);
-    }
+    } /*}}}*/
 
     discord_shutdown();
     return EXIT_SUCCESS;
