@@ -143,8 +143,8 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
     if(pid == 0) {
         // Child
         close(pipefd[PIPE_READ]);
-        dup2(STDOUT_FILENO, STDERR_FILENO); // Redirect stderr to stdout
         dup2(pipefd[PIPE_WRITE], STDOUT_FILENO); // Redirect stdout to pipe
+        dup2(STDOUT_FILENO, STDERR_FILENO); // Redirect stderr to stdout
 
         char *args[] = {"cmus-remote", "-Q", NULL};
         execvp("cmus-remote", args);
