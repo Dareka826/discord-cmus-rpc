@@ -6,7 +6,9 @@
 #include <unistd.h>
 #include <math.h>
 
-#define MEM_INFO_D 1
+#ifndef MEM_INFO_D
+#define MEM_INFO_D 0
+#endif
 
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
