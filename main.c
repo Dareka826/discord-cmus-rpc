@@ -43,7 +43,8 @@ enum {
     COLOR_ERROR = COLOR_RED,
     COLOR_WARN = COLOR_YELLOW,
     COLOR_NULLFREE = COLOR_MAGENTA,
-    COLOR_MEM = COLOR_BLUE
+    COLOR_MEM = COLOR_BLUE,
+    COLOR_NAME = COLOR_CYAN
 };
 
 #define _C(NAME) colors[COLOR_ ## NAME] /*}}}*/
@@ -64,12 +65,12 @@ void * xmalloc(size_t s) {
     return p;
 }
 
-void nfreen(void *p, const char * const name) {
+void _nfreen(void *p, const char * const name) {
     if(MEM_INFO_D == 1) {
         if(p != NULL) {
             if(name != NULL)
-                 fprintf(stderr, "[I]: %s[MEM]%s freeing %p (%s)\n",
-                         _C(MEM), _C(CLEAR), p, name);
+                 fprintf(stderr, "[I]: %s[MEM]%s freeing %p (%s%s%s)\n",
+                         _C(MEM), _C(CLEAR), p, _C(NAME), name, _C(CLEAR));
             else fprintf(stderr, "[I]: %s[MEM]%s freeing %p\n",
                          _C(MEM), _C(CLEAR), p);
         }
@@ -78,19 +79,23 @@ void nfreen(void *p, const char * const name) {
     if(p != NULL) free(p);
     else {
         if(MEM_INFO_D == 1 && name != NULL)
-             fprintf(stderr, "%s[W]%s: %s[MEM]%s Tried to free NULL! (%s)\n",
-                     _C(WARN), _C(CLEAR), _C(MEM), _C(CLEAR), name);
-        else fprintf(stderr, "%s[W]%s: %s[MEM]%s Tried to free NULL!\n",
-                     _C(WARN), _C(CLEAR), _C(MEM), _C(CLEAR));
+             fprintf(stderr, "%s[W]%s: %s[MEM]%s %sTried to free NULL!%s (%s%s%s)\n",
+                     _C(WARN), _C(CLEAR), _C(MEM), _C(CLEAR),
+                     _C(NULLFREE), _C(CLEAR), _C(NAME), name, _C(CLEAR));
+        else fprintf(stderr, "%s[W]%s: %s[MEM]%s %sTried to free NULL!%s\n",
+                     _C(WARN), _C(CLEAR), _C(MEM), _C(CLEAR),
+                     _C(NULLFREE), _C(CLEAR));
     }
 }
 
-void nfree(void *p) {
-    nfreen(p, NULL);
+void _nfree(void *p) {
+    _nfreen(p, NULL);
 }
 
-#define _nfree(ptr)       { nfree(ptr);        ptr = NULL; }
-#define _nfreen(ptr,name) { nfreen(ptr, name); ptr = NULL; } /*}}}*/
+#define nfree(ptr)       { _nfree(ptr);        ptr = NULL; }
+#define nfreen(ptr,name) { _nfreen(ptr, name); ptr = NULL; }
+
+#define silent_nfree(ptr) if(ptr != NULL) { free(ptr); ptr = NULL; } /*}}}*/
 
 // DISCORD {{{
 const char * const APP_ID = "976582643938377749";
@@ -102,8 +107,8 @@ struct presence_state {
 };
 
 void free_presence_state(struct presence_state *ps) { /*{{{*/
-    if(ps->state)   _nfree(ps->state);
-    if(ps->details) _nfree(ps->details);
+    if(ps->state)   nfreen(ps->state,   "presence_state state");
+    if(ps->details) nfreen(ps->details, "presence_state details");
 } /*}}}*/
 
 // Functions to notify of events {{{
@@ -169,11 +174,11 @@ struct cmus_state { /*{{{*/
 }; /*}}}*/
 
 void free_cmus_state(struct cmus_state *c) { /*{{{*/
-    if(c->title)       _nfree(c->title);
-    if(c->file)        _nfree(c->file);
-    if(c->artist)      _nfree(c->artist);
-    if(c->album)       _nfree(c->album);
-    if(c->albumartist) _nfree(c->albumartist);
+    if(c->title)       nfreen(c->title,       "cmus_state title");
+    if(c->file)        nfreen(c->file,        "cmus_state file");
+    if(c->artist)      nfreen(c->artist,      "cmus_state artist");
+    if(c->album)       nfreen(c->album,       "cmus_state album");
+    if(c->albumartist) nfreen(c->albumartist, "cmus_state album_artist");
 } /*}}}*/
 
 /* Example Data {{{
@@ -230,7 +235,8 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
             if(strncmp(line, "cmus-remote: cmus is not running", 32) == 0) {
                 fprintf(stderr, "[I]: cmus not running\n");
                 cs.status = 0;
-                _nfreen(line, "line: cmus not running");
+                //nfreen(line, "line: cmus not running");
+                silent_nfree(line);
                 break;
             }
 
@@ -308,10 +314,11 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
             }
 
             // Free memory allocated by getline()
-            _nfreen(line, "line: end of loop");
+            //nfreen(line, "line: end of loop");
+            silent_nfree(line);
         }
         if(line != NULL) // Clean up if getline fails
-            _nfree(line);
+            nfreen(line, "getline cleanup");
 
         // Copy gathered data into giver struct pointer
         // TODO: work on the pointer without a local copy
@@ -439,12 +446,12 @@ int main() {
     int was_playing = 0;
     struct presence_state old_ps;
     memset(&old_ps, 0, sizeof(old_ps));
-    old_ps.state = (char*) xmalloc(1);
+    old_ps.state = (char*) malloc(1);
     old_ps.state[0] = '\0';
-    old_ps.details = (char*) xmalloc(1);
+    old_ps.details = (char*) malloc(1);
     old_ps.details[0] = '\0';
 
-    // Main logic{{{
+    // Main logic {{{
     while(1) {
         cmus_get_metadata(&cs);
 
