@@ -29,12 +29,29 @@ void * xmalloc(size_t s) {
     return p;
 }
 
-void nfree(void *p) {
-    if(MEM_INFO_D == 1) fprintf(stderr, "[I]: [MEM] freeing %p\n", p);
+void nfreen(void *p, const char * const name) {
+    if(MEM_INFO_D == 1) {
+        if(p != NULL) {
+            if(name != NULL)
+                 fprintf(stderr, "[I]: [MEM] freeing %p (%s)\n", p, name);
+            else fprintf(stderr, "[I]: [MEM] freeing %p\n", p);
+        }
+    }
 
-    free(p);
-    p = NULL;
+    if(p != NULL) free(p);
+    else {
+        if(MEM_INFO_D == 1 && name != NULL)
+             fprintf(stderr, "[I]: [MEM] Tried to free NULL! (%s)\n", name);
+        else fprintf(stderr, "[I]: [MEM] Tried to free NULL!\n");
+    }
 }
+
+void nfree(void *p) {
+    nfreen(p, NULL);
+}
+
+#define _nfree(ptr)       { nfree(ptr);        ptr = NULL; }
+#define _nfreen(ptr,name) { nfreen(ptr, name); ptr = NULL; }
 // }}}
 
 // DISCORD {{{
@@ -47,8 +64,8 @@ struct presence_state {
 };
 
 void free_presence_state(struct presence_state *ps) { /*{{{*/
-    if(ps->state)   nfree(ps->state);
-    if(ps->details) nfree(ps->details);
+    if(ps->state)   _nfree(ps->state);
+    if(ps->details) _nfree(ps->details);
 } /*}}}*/
 
 // Functions to notify of events {{{
@@ -114,11 +131,11 @@ struct cmus_state { /*{{{*/
 }; /*}}}*/
 
 void free_cmus_state(struct cmus_state *c) { /*{{{*/
-    if(c->title)       nfree(c->title);
-    if(c->file)        nfree(c->file);
-    if(c->artist)      nfree(c->artist);
-    if(c->album)       nfree(c->album);
-    if(c->albumartist) nfree(c->albumartist);
+    if(c->title)       _nfree(c->title);
+    if(c->file)        _nfree(c->file);
+    if(c->artist)      _nfree(c->artist);
+    if(c->album)       _nfree(c->album);
+    if(c->albumartist) _nfree(c->albumartist);
 } /*}}}*/
 
 /* Example Data {{{
@@ -163,6 +180,8 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
         cs.tracknumber = -1;
 
         while((read_len = getline(&line, &len, child)) != -1) {
+            if(MEM_INFO_D == 1)
+                fprintf(stderr, "[I]: [MEM] getline() allocated %lu bytes at %p\n", len, line);
 
             // Get rid of newline
             if(line[read_len-1] == '\n')
@@ -170,8 +189,9 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
 
             // Check if cmus is running
             if(strncmp(line, "cmus-remote: cmus is not running", 32) == 0) {
+                fprintf(stderr, "[I]: cmus not running\n");
                 cs.status = 0;
-                nfree(line);
+                _nfreen(line, "line: cmus not running");
                 break;
             }
 
@@ -249,8 +269,9 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
             }
 
             // Free memory allocated by getline()
-            nfree(line);
+            _nfreen(line, "line: end of loop");
         }
+        _nfree(line);
 
         // Copy gathered data into giver struct pointer
         // TODO: work on the pointer without a local copy
