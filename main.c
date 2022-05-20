@@ -383,14 +383,12 @@ void create_status(struct cmus_state const * const cs, /*{{{*/
 
                 state_len += 2 + 3; // ". ",  " - "
                 ps->state = (char*) xmallocn(state_len+1, "create state");
-                memset(ps->state, 0, state_len+1);
                 snprintf(ps->state, state_len+1, "%02d. %s - %s", cs->tracknumber, cs->artist, cs->title);
             } else {
                 // artist - title
 
                 state_len += 3; // " - "
                 ps->state = (char*) xmallocn(state_len+1, "create state");
-                memset(ps->state, 0, state_len+1);
                 snprintf(ps->state, state_len+1, "%s - %s", cs->artist, cs->title);
             }
         } else {
@@ -401,13 +399,11 @@ void create_status(struct cmus_state const * const cs, /*{{{*/
 
                 state_len += 2; // ". "
                 ps->state = (char*) xmallocn(state_len+1, "create state");
-                memset(ps->state, 0, state_len+1);
                 snprintf(ps->state, state_len+1, "%02d. %s", cs->tracknumber, cs->title);
             } else {
                 // title
 
                 ps->state = (char*) xmallocn(state_len+1, "create state");
-                memset(ps->state, 0, state_len+1);
                 snprintf(ps->state, state_len+1, "%s", cs->title);
             }
         }
@@ -427,13 +423,11 @@ void create_status(struct cmus_state const * const cs, /*{{{*/
 
             details_len += 3; // "[", "] "
             ps->details = (char*) xmallocn(details_len+1, "create details");
-            memset(ps->details, 0, details_len+1);
             snprintf(ps->details, details_len+1, "[%s] %s", cs->albumartist, cs->album);
         } else {
             // album
 
             ps->details = (char*) xmallocn(details_len+1, "create details");
-            memset(ps->details, 0, details_len+1);
             snprintf(ps->details, details_len+1, "%s", cs->album);
         }
     } else {
