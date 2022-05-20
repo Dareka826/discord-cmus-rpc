@@ -101,9 +101,7 @@ void _nfree(void *p) {
 }
 
 #define nfree(ptr)       { _nfree(ptr);        ptr = NULL; }
-#define nfreen(ptr,name) { _nfreen(ptr, name); ptr = NULL; }
-
-#define silent_nfree(ptr) if(ptr != NULL) { free(ptr); ptr = NULL; } /*}}}*/
+#define nfreen(ptr,name) { _nfreen(ptr, name); ptr = NULL; } /*}}}*/
 
 // DISCORD {{{
 const char * const APP_ID = "976582643938377749";
@@ -248,8 +246,7 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
             if(strncmp(line, "cmus-remote: cmus is not running", 32) == 0) {
                 fprintf(stderr, "[I]: cmus not running\n");
                 cs.status = 0;
-                //nfreen(line, "line: cmus not running");
-                silent_nfree(line);
+                nfreen(line, "line: cmus not running");
                 break;
             }
 
@@ -327,8 +324,7 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
             }
 
             // Free memory allocated by getline()
-            //nfreen(line, "line: end of loop");
-            silent_nfree(line);
+            nfreen(line, "line: end of loop");
         }
         if(line != NULL) // Clean up if getline fails
             nfreen(line, "getline cleanup");
