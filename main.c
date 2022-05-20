@@ -16,16 +16,49 @@ enum {
     PIPE_WRITE
 };
 
+// Colors {{{
+const char *colors[] = {
+    "\033[0m",  // Clear
+    "\033[31m", // Red
+    "\033[32m", // Green
+    "\033[33m", // Yellow
+    "\033[34m", // Blue
+    "\033[35m", // Magenta
+    "\033[36m", // Cyan
+    "\033[37m", // White/Gray
+};
+
+enum {
+    COLOR_CLEAR = 0,
+    COLOR_RED,
+    COLOR_GREEN,
+    COLOR_YELLOW,
+    COLOR_BLUE,
+    COLOR_MAGENTA,
+    COLOR_CYAN,
+    COLOR_WHITE,
+
+    COLOR_ERROR = COLOR_RED,
+    COLOR_WARN = COLOR_YELLOW,
+    COLOR_NULLFREE = COLOR_MAGENTA,
+    COLOR_MEM = COLOR_BLUE
+};
+
+#define _C(NAME) colors[COLOR_ ## NAME] /*}}}*/
+
 // Memory utility functions {{{
 void * xmalloc(size_t s) {
     void *p = malloc(s);
 
     if(p == NULL) {
-        fprintf(stderr, "[E]: malloc() failed, exiting...\n");
+        fprintf(stderr, "%s[E]%s: malloc() failed, exiting...\n",
+                _C(ERROR), _C(CLEAR));
         exit(1);
     }
 
-    if(MEM_INFO_D == 1) fprintf(stderr, "[I]: [MEM] allocated %lu bytes at %p\n", s, p);
+    if(MEM_INFO_D == 1)
+        fprintf(stderr, "[I]: %s[MEM]%s allocated %lu bytes at %p\n",
+                _C(MEM), _C(CLEAR), s, p);
     return p;
 }
 
@@ -33,16 +66,20 @@ void nfreen(void *p, const char * const name) {
     if(MEM_INFO_D == 1) {
         if(p != NULL) {
             if(name != NULL)
-                 fprintf(stderr, "[I]: [MEM] freeing %p (%s)\n", p, name);
-            else fprintf(stderr, "[I]: [MEM] freeing %p\n", p);
+                 fprintf(stderr, "[I]: %s[MEM]%s freeing %p (%s)\n",
+                         _C(MEM), _C(CLEAR), p, name);
+            else fprintf(stderr, "[I]: %s[MEM]%s freeing %p\n",
+                         _C(MEM), _C(CLEAR), p);
         }
     }
 
     if(p != NULL) free(p);
     else {
         if(MEM_INFO_D == 1 && name != NULL)
-             fprintf(stderr, "[I]: [MEM] Tried to free NULL! (%s)\n", name);
-        else fprintf(stderr, "[I]: [MEM] Tried to free NULL!\n");
+             fprintf(stderr, "%s[W]%s: %s[MEM]%s Tried to free NULL! (%s)\n",
+                     _C(WARN), _C(CLEAR), _C(MEM), _C(CLEAR), name);
+        else fprintf(stderr, "%s[W]%s: %s[MEM]%s Tried to free NULL!\n",
+                     _C(WARN), _C(CLEAR), _C(MEM), _C(CLEAR));
     }
 }
 
@@ -51,8 +88,7 @@ void nfree(void *p) {
 }
 
 #define _nfree(ptr)       { nfree(ptr);        ptr = NULL; }
-#define _nfreen(ptr,name) { nfreen(ptr, name); ptr = NULL; }
-// }}}
+#define _nfreen(ptr,name) { nfreen(ptr, name); ptr = NULL; } /*}}}*/
 
 // DISCORD {{{
 const char * const APP_ID = "976582643938377749";
