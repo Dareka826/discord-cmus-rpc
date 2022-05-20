@@ -308,7 +308,8 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
             // Free memory allocated by getline()
             _nfreen(line, "line: end of loop");
         }
-        _nfree(line);
+        if(line != NULL) // Clean up if getline fails
+            _nfree(line);
 
         // Copy gathered data into giver struct pointer
         // TODO: work on the pointer without a local copy
