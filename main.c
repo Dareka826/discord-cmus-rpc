@@ -110,11 +110,11 @@ void discord_on_ready(const DiscordUser *connected_user) {
 }
 
 void discord_on_error(int error_code, const char *message) {
-    fprintf(stderr, "[E]: Discord error!\n");
+    fprintf(stderr, "%s[E]:%s Discord error!\n", _C(ERROR), _C(CLEAR));
 }
 
 void discord_on_disconnected(int error_code, const char *message) {
-    fprintf(stderr, "[E]: Discord disconnected!\n");
+    fprintf(stderr, "%s[E]%s: Discord disconnected!\n", _C(ERROR), _C(CLEAR));
 } /*}}}*/
 
 // Initialize rpc connection {{{
@@ -217,7 +217,8 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
 
         while((read_len = getline(&line, &len, child)) != -1) {
             if(MEM_INFO_D == 1)
-                fprintf(stderr, "[I]: [MEM] getline() allocated %lu bytes at %p\n", len, line);
+                fprintf(stderr, "[I]: %s[MEM]%s getline() allocated %lu bytes at %p\n",
+                        _C(MEM), _C(CLEAR), len, line);
 
             // Get rid of newline
             if(line[read_len-1] == '\n')
