@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <math.h>
 
+#define MEM_INFO_D 1
+
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
@@ -13,6 +15,27 @@ enum {
     PIPE_READ = 0,
     PIPE_WRITE
 };
+
+// Memory utility functions {{{
+void * xmalloc(size_t s) {
+    void *p = malloc(s);
+
+    if(p == NULL) {
+        fprintf(stderr, "[E]: malloc() failed, exiting...\n");
+        exit(1);
+    }
+
+    if(MEM_INFO_D == 1) fprintf(stderr, "[I]: [MEM] allocated %lu bytes at %p\n", s, p);
+    return p;
+}
+
+void nfree(void *p) {
+    if(MEM_INFO_D == 1) fprintf(stderr, "[I]: [MEM] freeing %p\n", p);
+
+    free(p);
+    p = NULL;
+}
+// }}}
 
 // DISCORD {{{
 const char * const APP_ID = "976582643938377749";
@@ -24,14 +47,8 @@ struct presence_state {
 };
 
 void free_presence_state(struct presence_state *ps) { /*{{{*/
-    if(ps->state) {
-        free(ps->state);
-        ps->state = NULL;
-    }
-    if(ps->details) {
-        free(ps->details);
-        ps->details = NULL;
-    }
+    if(ps->state)   nfree(ps->state);
+    if(ps->details) nfree(ps->details);
 } /*}}}*/
 
 // Functions to notify of events {{{
@@ -97,26 +114,11 @@ struct cmus_state { /*{{{*/
 }; /*}}}*/
 
 void free_cmus_state(struct cmus_state *c) { /*{{{*/
-    if(c->title) {
-        free(c->title);
-        c->title = NULL;
-    }
-    if(c->file) {
-        free(c->file);
-        c->file = NULL;
-    }
-    if(c->artist) {
-        free(c->artist);
-        c->artist = NULL;
-    }
-    if(c->album) {
-        free(c->album);
-        c->album = NULL;
-    }
-    if(c->albumartist) {
-        free(c->albumartist);
-        c->albumartist = NULL;
-    }
+    if(c->title)       nfree(c->title);
+    if(c->file)        nfree(c->file);
+    if(c->artist)      nfree(c->artist);
+    if(c->album)       nfree(c->album);
+    if(c->albumartist) nfree(c->albumartist);
 } /*}}}*/
 
 /* Example Data {{{
@@ -169,6 +171,7 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
             // Check if cmus is running
             if(strncmp(line, "cmus-remote: cmus is not running", 32) == 0) {
                 cs.status = 0;
+                nfree(line);
                 break;
             }
 
@@ -177,7 +180,7 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
                 // Title
                 if(strncmp(line+4, "title ", 6) == 0) {
                     int len = strnlen(line+10, 4096) + 1;
-                    cs.title = (char*) malloc(len);
+                    cs.title = (char*) xmalloc(len);
                     memset(cs.title, 0, len);
 
                     strncpy(cs.title, line+10, len);
@@ -186,7 +189,7 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
                 // Artist
                 else if(strncmp(line+4, "artist ", 7) == 0) {
                     int len = strnlen(line+11, 4096) + 1;
-                    cs.artist = (char*) malloc(len);
+                    cs.artist = (char*) xmalloc(len);
                     memset(cs.artist, 0, len);
 
                     strncpy(cs.artist, line+11, len);
@@ -201,7 +204,7 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
                 // Album
                 else if(strncmp(line+4, "album ", 6) == 0) {
                     int len = strnlen(line+10, 4096) + 1;
-                    cs.album = (char*) malloc(len);
+                    cs.album = (char*) xmalloc(len);
                     memset(cs.album, 0, len);
 
                     strncpy(cs.album, line+10, len);
@@ -210,7 +213,7 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
                 // Album Artist
                 else if(strncmp(line+4, "albumartist ", 12) == 0) {
                     int len = strnlen(line+16, 4096) + 1;
-                    cs.albumartist = (char*) malloc(len);
+                    cs.albumartist = (char*) xmalloc(len);
                     memset(cs.albumartist, 0, len);
 
                     strncpy(cs.albumartist, line+16, len);
@@ -239,14 +242,14 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
             // Which file is being played
             else if(strncmp(line, "file ", 5) == 0) {
                 int len = strnlen(line+5, 4096) + 1;
-                cs.file = (char*) malloc(len);
+                cs.file = (char*) xmalloc(len);
                 memset(cs.file, 0, len);
 
                 strncpy(cs.file, line+5, len);
             }
 
             // Free memory allocated by getline()
-            free(line); line = NULL;
+            nfree(line);
         }
 
         // Copy gathered data into giver struct pointer
@@ -295,14 +298,14 @@ void create_status(struct cmus_state const * const cs, /*{{{*/
                 if(cs->tracknumber < 10) state_len++;
 
                 state_len += 2 + 3; // ". ",  " - "
-                ps->state = (char*) malloc(state_len+1);
+                ps->state = (char*) xmalloc(state_len+1);
                 memset(ps->state, 0, state_len+1);
                 snprintf(ps->state, state_len+1, "%02d. %s - %s", cs->tracknumber, cs->artist, cs->title);
             } else {
                 // artist - title
 
                 state_len += 3; // " - "
-                ps->state = (char*) malloc(state_len+1);
+                ps->state = (char*) xmalloc(state_len+1);
                 memset(ps->state, 0, state_len+1);
                 snprintf(ps->state, state_len+1, "%s - %s", cs->artist, cs->title);
             }
@@ -313,13 +316,13 @@ void create_status(struct cmus_state const * const cs, /*{{{*/
                 if(cs->tracknumber < 10) state_len++;
 
                 state_len += 2; // ". "
-                ps->state = (char*) malloc(state_len+1);
+                ps->state = (char*) xmalloc(state_len+1);
                 memset(ps->state, 0, state_len+1);
                 snprintf(ps->state, state_len+1, "%02d. %s", cs->tracknumber, cs->title);
             } else {
                 // title
 
-                ps->state = (char*) malloc(state_len+1);
+                ps->state = (char*) xmalloc(state_len+1);
                 memset(ps->state, 0, state_len+1);
                 snprintf(ps->state, state_len+1, "%s", cs->title);
             }
@@ -339,13 +342,13 @@ void create_status(struct cmus_state const * const cs, /*{{{*/
             details_len += strnlen(cs->albumartist, 512);
 
             details_len += 3; // "[", "] "
-            ps->details = (char*) malloc(details_len+1);
+            ps->details = (char*) xmalloc(details_len+1);
             memset(ps->details, 0, details_len+1);
             snprintf(ps->details, details_len+1, "[%s] %s", cs->albumartist, cs->album);
         } else {
             // album
 
-            ps->details = (char*) malloc(details_len+1);
+            ps->details = (char*) xmalloc(details_len+1);
             memset(ps->details, 0, details_len+1);
             snprintf(ps->details, details_len+1, "%s", cs->album);
         }
@@ -375,9 +378,9 @@ int main() {
     int was_playing = 0;
     struct presence_state old_ps;
     memset(&old_ps, 0, sizeof(old_ps));
-    old_ps.state = (char*) malloc(1);
+    old_ps.state = (char*) xmalloc(1);
     old_ps.state[0] = '\0';
-    old_ps.details = (char*) malloc(1);
+    old_ps.details = (char*) xmalloc(1);
     old_ps.details[0] = '\0';
 
     while(1) {
