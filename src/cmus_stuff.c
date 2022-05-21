@@ -239,7 +239,7 @@ void create_status(struct cmus_state const * const cs, /*{{{*/
                 snprintf(ps->state, state_len+1, "%s", cs->title);
             }
         }
-    } else {
+    } else if(cs->file) {
         // file
         const char * fname_start = strrchr(cs->file, '/');
         fname_start++; // One character after last slash
