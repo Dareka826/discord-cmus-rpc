@@ -1,6 +1,7 @@
 #include "../src/cmus_stuff.h"
 
 #include "../src/utils.h"
+#include "../src/discord_stuff.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -283,6 +284,132 @@ int main() {
 
     free_cmus_state(&cs); /*}}}*/
 
-    // TODO:
-    // create_status
+    // Create status
+    struct presence_state ps;
+
+    // State: <file> {{{
+    memset(&cs, 0, sizeof(cs));
+    memset(&ps, 0, sizeof(ps));
+
+    _cmus_parse_line(&cs, "file /some/nice/dir/##. artist - nice file.opus");
+    create_status(&cs, &ps);
+
+    assert(strcmp(ps.state, "##. artist - nice file.opus") == 0);
+
+    free_presence_state(&ps);
+    free_cmus_state(&cs); /*}}}*/
+
+    // State: <title> {{{
+    memset(&cs, 0, sizeof(cs));
+    memset(&ps, 0, sizeof(ps));
+
+    _cmus_parse_line(&cs, "tag title <nice title>");
+    create_status(&cs, &ps);
+
+    assert(strcmp(ps.state, "<nice title>") == 0);
+
+    free_presence_state(&ps);
+    free_cmus_state(&cs); /*}}}*/
+
+    // State: <tracknumber>. <title> {{{
+    memset(&cs, 0, sizeof(cs));
+    memset(&ps, 0, sizeof(ps));
+
+    _cmus_parse_line(&cs, "tag tracknumber 8");
+    _cmus_parse_line(&cs, "tag title <nice title>");
+    create_status(&cs, &ps);
+
+    assert(strcmp(ps.state, "08. <nice title>") == 0);
+
+    free_presence_state(&ps);
+    free_cmus_state(&cs); /*}}}*/
+
+    // State: <tracknumber>. <title> {{{
+    memset(&cs, 0, sizeof(cs));
+    memset(&ps, 0, sizeof(ps));
+
+    _cmus_parse_line(&cs, "tag tracknumber 346");
+    _cmus_parse_line(&cs, "tag title <nice title>");
+    create_status(&cs, &ps);
+
+    assert(strcmp(ps.state, "346. <nice title>") == 0);
+
+    free_presence_state(&ps);
+    free_cmus_state(&cs); /*}}}*/
+
+    // State: <artist> - <title> {{{
+    memset(&cs, 0, sizeof(cs));
+    memset(&ps, 0, sizeof(ps));
+
+    _cmus_parse_line(&cs, "tag artist <artist 348u>");
+    _cmus_parse_line(&cs, "tag title >nice title<");
+    create_status(&cs, &ps);
+
+    assert(strcmp(ps.state, "<artist 348u> - >nice title<") == 0);
+
+    free_presence_state(&ps);
+    free_cmus_state(&cs); /*}}}*/
+
+    // State: <tracknumber>. <artist> - <title> {{{
+    memset(&cs, 0, sizeof(cs));
+    memset(&ps, 0, sizeof(ps));
+
+    _cmus_parse_line(&cs, "tag tracknumber 56");
+    _cmus_parse_line(&cs, "tag artist <artist 348u>");
+    _cmus_parse_line(&cs, "tag title >nice title<");
+    create_status(&cs, &ps);
+
+    assert(strcmp(ps.state, "56. <artist 348u> - >nice title<") == 0);
+
+    free_presence_state(&ps);
+    free_cmus_state(&cs); /*}}}*/
+
+    // Details: <empty> {{{
+    memset(&cs, 0, sizeof(cs));
+    memset(&ps, 0, sizeof(ps));
+
+    create_status(&cs, &ps); // sigsegv
+
+    assert(strcmp(ps.details, "") == 0);
+
+    free_presence_state(&ps);
+    free_cmus_state(&cs); /*}}}*/
+
+    // Details: <album> {{{
+    memset(&cs, 0, sizeof(cs));
+    memset(&ps, 0, sizeof(ps));
+
+    _cmus_parse_line(&cs, "tag album \"The greatest album ever #02\"*");
+    create_status(&cs, &ps);
+
+    assert(strcmp(ps.details, "\"The greatest album ever #02\"*") == 0);
+
+    free_presence_state(&ps);
+    free_cmus_state(&cs); /*}}}*/
+
+    // Details: [<albumartist>] <album> {{{
+    memset(&cs, 0, sizeof(cs));
+    memset(&ps, 0, sizeof(ps));
+
+    _cmus_parse_line(&cs, "tag album \"The greatest album ever #02\"*");
+    _cmus_parse_line(&cs, "tag albumartist Hard J-Pop Collab");
+    create_status(&cs, &ps);
+
+    assert(strcmp(ps.details, "[Hard J-Pop Collab] \"The greatest album ever #02\"*") == 0);
+
+    free_presence_state(&ps);
+    free_cmus_state(&cs); /*}}}*/
+
+    // Time left {{{
+    memset(&cs, 0, sizeof(cs));
+    memset(&ps, 0, sizeof(ps));
+
+    _cmus_parse_line(&cs, "position 34");
+    _cmus_parse_line(&cs, "duration 547");
+    create_status(&cs, &ps);
+
+    assert(ps.time_left == (547 - 34));
+
+    free_presence_state(&ps);
+    free_cmus_state(&cs); /*}}}*/
 }
