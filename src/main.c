@@ -7,12 +7,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
+
+volatile sig_atomic_t requested_exit = 0;
+
+void handle_exit(int signum) {
+    requested_exit = 1;
+}
 
 int main() {
     // TODO:
     // - free stuff on SIGTERM
 
     discord_init();
+
+    signal(SIGTERM, handle_exit);
+    signal(SIGINT,  handle_exit);
 
     struct cmus_state cs;
     struct presence_state ps, old_ps;
@@ -26,7 +36,7 @@ int main() {
     old_ps.details[0] = '\0';
 
     // Main logic {{{
-    while(1) {
+    while(requested_exit == 0) {
         if(MEM_INFO_D) fprintf(stderr, "\n"); // Better visibility
 
         // Clear out variables
