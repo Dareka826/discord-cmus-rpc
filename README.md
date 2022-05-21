@@ -10,7 +10,7 @@ git submodule update --init
 cd discord-rpc
 ./build.py libs
 cd ..
-make
+redo
 ```
 
 ## Running
