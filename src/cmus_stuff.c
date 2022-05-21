@@ -241,8 +241,13 @@ void create_status(struct cmus_state const * const cs, /*{{{*/
         }
     } else {
         // file
-        ps->state = (char*) xmalloc(18);
-        strncpy(ps->state, "<Not implemented>", 18);
+        const char * fname_start = strrchr(cs->file, '/');
+        fname_start++; // One character after last slash
+
+        state_len += strnlen(fname_start, 512);
+
+        ps->state = (char*) xmallocn(state_len+1, "create state");
+        strncpy(ps->state, fname_start, state_len+1);
     }
 
     int details_len = 0;
