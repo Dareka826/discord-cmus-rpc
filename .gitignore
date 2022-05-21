@@ -2,3 +2,4 @@
 cmus-rpcd
 build/*.o
 build/*.d
+build/*.test

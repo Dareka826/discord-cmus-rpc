@@ -10,12 +10,9 @@ ${CC:-gcc} -c "../tests/${2}_test.c" ${CFLAGS} -MD -MF "${2}.test.d" -o "${2}.te
 read DEPS <"${2}.test.d"
 redo-ifchange ${DEPS#*:}
 
-# Additional obj files
-OBJ=""
-[ "${2}" != "colors"        ] && OBJ="${OBJ} colors.o"
-[ "${2}" != "utils"         ] && OBJ="${OBJ} utils.o"
-[ "${2}" != "discord_stuff" ] && OBJ="${OBJ} discord_stuff.o"
-[ "${2}" != "cmus_stuff"    ] && OBJ="${OBJ} cmus_stuff.o"
+# Additional obj files (could be autodetected, but there's no reason)
+OBJ="colors.o utils.o discord_stuff.o cmus_stuff.o"
+redo-ifchange ${OBJ}
 
 LDFLAGS="${LDFLAGS} -L../discord-rpc/builds/linux-static/src -ldiscord-rpc"
 
