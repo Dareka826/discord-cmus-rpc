@@ -336,6 +336,7 @@ void cmus_get_metadata(struct cmus_state * const cs) { /*{{{*/
 void create_status(struct cmus_state const * const cs, /*{{{*/
                    struct presence_state * const ps) {
 
+    // State format: {{{
     // title?
     //   artist?
     //     tracknum?
@@ -357,6 +358,7 @@ void create_status(struct cmus_state const * const cs, /*{{{*/
     //     details = "album"
     // else
     //   details = ""
+    // }}}
 
     if(MEM_INFO_D) fprintf(stderr, "[I]: Creating status from metadata\n");
 
@@ -401,7 +403,8 @@ void create_status(struct cmus_state const * const cs, /*{{{*/
         }
     } else {
         // file
-        ps->state = "<Not implemented>";
+        ps->state = (char*) xmalloc(18);
+        strncpy(ps->state, "<Not implemented>", 18);
     }
 
     int details_len = 0;
@@ -424,7 +427,8 @@ void create_status(struct cmus_state const * const cs, /*{{{*/
         }
     } else {
         // empty
-        ps->details = "";
+        ps->details = (char*) xmalloc(1);
+        ps->details[0] = '\0';
     }
 
     ps->time_left = cs->duration - cs->position;
@@ -445,10 +449,9 @@ int main() {
     discord_init();
 
     struct cmus_state cs;
-    struct presence_state ps;
+    struct presence_state ps, old_ps;
 
-    int was_playing = 0;
-    struct presence_state old_ps;
+    int old_status = 0;
     memset(&old_ps, 0, sizeof(old_ps));
     old_ps.state = (char*) malloc(1);
     old_ps.state[0] = '\0';
@@ -458,7 +461,11 @@ int main() {
     // Main logic {{{
     while(1) {
         if(MEM_INFO_D) fprintf(stderr, "\n");
+
+        // Clear out variables
         memset(&cs, 0, sizeof(cs));
+        memset(&ps, 0, sizeof(ps));
+
         cmus_get_metadata(&cs);
 
         if(cs.status == 1) {
@@ -471,7 +478,7 @@ int main() {
                 int old_details_len = strnlen(old_ps.details, 512);
                 int new_details_len = strnlen(    ps.details, 512);
 
-                if( (was_playing == 0) ||
+                if( (old_status == 0) ||
                     (old_state_len   != new_state_len)   ||
                     (old_details_len != new_details_len) ||
                     (strncmp(old_ps.state,   ps.state,   MAX(old_state_len,   new_state_len))   != 0) ||
@@ -491,15 +498,16 @@ int main() {
                 discord_update_presence(&ps);
             }
 
-            was_playing = 1;
+            old_status = 1;
 
-            free_presence_state(&old_ps);
+            free_presence_state(&old_ps); // Free old data
             memcpy(&old_ps, &ps, sizeof(struct presence_state));
 
         } else {
-            if(was_playing == 1) {
-                printf("[I]: Not playing\n");
-                was_playing = 0;
+            // Not playing
+            if(old_status == 1) {
+                printf("[I]: Stopped playing\n");
+                old_status = 0;
 
                 discord_clear_presence();
             }
@@ -507,6 +515,11 @@ int main() {
 
         free_cmus_state(&cs);
         if(MEM_INFO_D) fprintf(stderr, "\n");
+
+        // Prevent messages from piling-up
+        fflush(stderr);
+        fflush(stdout);
+
         sleep(1);
     } /*}}}*/
 
