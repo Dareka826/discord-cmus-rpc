@@ -232,6 +232,7 @@ void cmus_get_metadata(struct cmus_state * const cs) { /*{{{*/
         size_t read_len = 0; // Length of read-in line
 
         if(MEM_INFO_D) fprintf(stderr, "[I]: Parsing cmus metadata\n");
+        cs->status = -1;
         while((read_len = getline(&line, &len, child)) != -1) {
             if(MEM_INFO_D == 1)
                 fprintf(stderr, "[I]: %s[MEM]%s getline() allocated %lu bytes at %p\n",
