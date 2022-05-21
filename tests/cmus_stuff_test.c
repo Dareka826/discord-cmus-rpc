@@ -91,7 +91,7 @@ int main() {
     _cmus_parse_line(&cs, str7);
 
     assert(cs.title != NULL);
-    assert(strcmp(cs.title, "some nice title") == 0);
+    assert(strcmp(cs.title, str7+10) == 0);
 
     assert(cs.file        == NULL);
     assert(cs.artist      == NULL);
@@ -111,7 +111,7 @@ int main() {
     _cmus_parse_line(&cs, str8);
 
     assert(cs.artist != NULL);
-    assert(strcmp(cs.artist, "A very talented artist!!#") == 0);
+    assert(strcmp(cs.artist, str8+11) == 0);
 
     assert(cs.title       == NULL);
     assert(cs.file        == NULL);
@@ -131,7 +131,7 @@ int main() {
     _cmus_parse_line(&cs, str9);
 
     assert(cs.album != NULL);
-    assert(strcmp(cs.album, "Some nice hardstyle VOL//1") == 0);
+    assert(strcmp(cs.album, str9+10) == 0);
 
     assert(cs.title       == NULL);
     assert(cs.file        == NULL);
@@ -151,7 +151,7 @@ int main() {
     _cmus_parse_line(&cs, str10);
 
     assert(cs.albumartist != NULL);
-    assert(strcmp(cs.albumartist, "Som3 F#uckng Ga1 3x") == 0);
+    assert(strcmp(cs.albumartist, str10+16) == 0);
 
     assert(cs.title       == NULL);
     assert(cs.file        == NULL);
@@ -168,8 +168,7 @@ int main() {
     memset(&cs, 0, sizeof(cs));
 
     cs.tracknumber = -1;
-    const char * str11 = "tag tracknumber 324";
-    _cmus_parse_line(&cs, str11);
+    _cmus_parse_line(&cs, "tag tracknumber 324");
 
     assert(cs.tracknumber == 324);
 
@@ -188,8 +187,7 @@ int main() {
     memset(&cs, 0, sizeof(cs));
 
     cs.status = -1;
-    const char * str12 = "status playing";
-    _cmus_parse_line(&cs, str12);
+    _cmus_parse_line(&cs, "status playing");
 
     assert(cs.status      == 1);
 
@@ -208,8 +206,7 @@ int main() {
     memset(&cs, 0, sizeof(cs));
 
     cs.status = -1;
-    const char * str13 = "status paused";
-    _cmus_parse_line(&cs, str13);
+    _cmus_parse_line(&cs, "status paused");
 
     assert(cs.status      == 0);
 
@@ -228,8 +225,7 @@ int main() {
     memset(&cs, 0, sizeof(cs));
 
     cs.position = -1;
-    const char * str14 = "position 3450";
-    _cmus_parse_line(&cs, str14);
+    _cmus_parse_line(&cs, "position 3450");
 
     assert(cs.position == 3450);
 
@@ -248,8 +244,7 @@ int main() {
     memset(&cs, 0, sizeof(cs));
 
     cs.duration = -1;
-    const char * str15 = "duration 9845";
-    _cmus_parse_line(&cs, str15);
+    _cmus_parse_line(&cs, "duration 9845");
 
     assert(cs.duration == 9845);
 
@@ -267,11 +262,11 @@ int main() {
     // File {{{
     memset(&cs, 0, sizeof(cs));
 
-    const char * str16 = "file /some/directory/and/file - nice name.opus";
-    _cmus_parse_line(&cs, str16);
+    const char * str11 = "file /some/directory/and/file - nice name.opus";
+    _cmus_parse_line(&cs, str11);
 
     assert(cs.file != NULL);
-    assert(strcmp(cs.file, "/some/directory/and/file - nice name.opus") == 0);
+    assert(strcmp(cs.file, str11+5) == 0);
 
     assert(cs.title       == NULL);
     assert(cs.artist      == NULL);
@@ -291,10 +286,11 @@ int main() {
     memset(&cs, 0, sizeof(cs));
     memset(&ps, 0, sizeof(ps));
 
-    _cmus_parse_line(&cs, "file /some/nice/dir/##. artist - nice file.opus");
+    const char * str12 = "file /some/nice/dir/##. artist - nice file.opus";
+    _cmus_parse_line(&cs, str12);
     create_status(&cs, &ps);
 
-    assert(strcmp(ps.state, "##. artist - nice file.opus") == 0);
+    assert(strcmp(ps.state, str12+20) == 0);
 
     free_presence_state(&ps);
     free_cmus_state(&cs); /*}}}*/
@@ -303,10 +299,11 @@ int main() {
     memset(&cs, 0, sizeof(cs));
     memset(&ps, 0, sizeof(ps));
 
-    _cmus_parse_line(&cs, "tag title <nice title>");
+    const char * str13 = "tag title <nice title>";
+    _cmus_parse_line(&cs, str13);
     create_status(&cs, &ps);
 
-    assert(strcmp(ps.state, "<nice title>") == 0);
+    assert(strcmp(ps.state, str13+10) == 0);
 
     free_presence_state(&ps);
     free_cmus_state(&cs); /*}}}*/
@@ -316,7 +313,7 @@ int main() {
     memset(&ps, 0, sizeof(ps));
 
     _cmus_parse_line(&cs, "tag tracknumber 8");
-    _cmus_parse_line(&cs, "tag title <nice title>");
+    _cmus_parse_line(&cs, str13);
     create_status(&cs, &ps);
 
     assert(strcmp(ps.state, "08. <nice title>") == 0);
@@ -329,7 +326,7 @@ int main() {
     memset(&ps, 0, sizeof(ps));
 
     _cmus_parse_line(&cs, "tag tracknumber 346");
-    _cmus_parse_line(&cs, "tag title <nice title>");
+    _cmus_parse_line(&cs, str13);
     create_status(&cs, &ps);
 
     assert(strcmp(ps.state, "346. <nice title>") == 0);
@@ -341,11 +338,12 @@ int main() {
     memset(&cs, 0, sizeof(cs));
     memset(&ps, 0, sizeof(ps));
 
-    _cmus_parse_line(&cs, "tag artist <artist 348u>");
-    _cmus_parse_line(&cs, "tag title >nice title<");
+    const char * str14 = "tag artist <artist 348u>";
+    _cmus_parse_line(&cs, str14);
+    _cmus_parse_line(&cs, str13);
     create_status(&cs, &ps);
 
-    assert(strcmp(ps.state, "<artist 348u> - >nice title<") == 0);
+    assert(strcmp(ps.state, "<artist 348u> - <nice title>") == 0);
 
     free_presence_state(&ps);
     free_cmus_state(&cs); /*}}}*/
@@ -355,11 +353,11 @@ int main() {
     memset(&ps, 0, sizeof(ps));
 
     _cmus_parse_line(&cs, "tag tracknumber 56");
-    _cmus_parse_line(&cs, "tag artist <artist 348u>");
-    _cmus_parse_line(&cs, "tag title >nice title<");
+    _cmus_parse_line(&cs, str14);
+    _cmus_parse_line(&cs, str13);
     create_status(&cs, &ps);
 
-    assert(strcmp(ps.state, "56. <artist 348u> - >nice title<") == 0);
+    assert(strcmp(ps.state, "56. <artist 348u> - <nice title>") == 0);
 
     free_presence_state(&ps);
     free_cmus_state(&cs); /*}}}*/
@@ -368,7 +366,7 @@ int main() {
     memset(&cs, 0, sizeof(cs));
     memset(&ps, 0, sizeof(ps));
 
-    create_status(&cs, &ps); // sigsegv
+    create_status(&cs, &ps);
 
     assert(strcmp(ps.details, "") == 0);
 
@@ -379,10 +377,11 @@ int main() {
     memset(&cs, 0, sizeof(cs));
     memset(&ps, 0, sizeof(ps));
 
-    _cmus_parse_line(&cs, "tag album \"The greatest album ever #02\"*");
+    const char * str15 = "tag album \"The greatest album ever #02\"*";
+    _cmus_parse_line(&cs, str15);
     create_status(&cs, &ps);
 
-    assert(strcmp(ps.details, "\"The greatest album ever #02\"*") == 0);
+    assert(strcmp(ps.details, str15+10) == 0);
 
     free_presence_state(&ps);
     free_cmus_state(&cs); /*}}}*/
@@ -391,7 +390,7 @@ int main() {
     memset(&cs, 0, sizeof(cs));
     memset(&ps, 0, sizeof(ps));
 
-    _cmus_parse_line(&cs, "tag album \"The greatest album ever #02\"*");
+    _cmus_parse_line(&cs, str15);
     _cmus_parse_line(&cs, "tag albumartist Hard J-Pop Collab");
     create_status(&cs, &ps);
 
@@ -412,4 +411,6 @@ int main() {
 
     free_presence_state(&ps);
     free_cmus_state(&cs); /*}}}*/
+
+    return EXIT_SUCCESS;
 }
