@@ -1,4 +1,6 @@
-#include "discord-rpc/include/discord_rpc.h"
+#include "colors.h"
+
+#include "../discord-rpc/include/discord_rpc.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,37 +20,6 @@ enum {
     PIPE_READ = 0,
     PIPE_WRITE
 };
-
-// Colors {{{
-const char *colors[] = {
-    "\033[0m",  // Clear
-    "\033[31m", // Red
-    "\033[32m", // Green
-    "\033[33m", // Yellow
-    "\033[34m", // Blue
-    "\033[35m", // Magenta
-    "\033[36m", // Cyan
-    "\033[37m", // White/Gray
-};
-
-enum {
-    COLOR_CLEAR = 0,
-    COLOR_RED,
-    COLOR_GREEN,
-    COLOR_YELLOW,
-    COLOR_BLUE,
-    COLOR_MAGENTA,
-    COLOR_CYAN,
-    COLOR_WHITE,
-
-    COLOR_ERROR = COLOR_RED,
-    COLOR_WARN = COLOR_YELLOW,
-    COLOR_NULLFREE = COLOR_MAGENTA,
-    COLOR_MEM = COLOR_BLUE,
-    COLOR_NAME = COLOR_CYAN
-};
-
-#define _C(NAME) colors[COLOR_ ## NAME] /*}}}*/
 
 // Memory utility functions {{{
 void * xmallocn(size_t s, const char * const name) {
