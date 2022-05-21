@@ -1,1 +1,1 @@
-rm -v ./build/*.d ./build/*.o ./cmus-rpcd >&2 || :
+rm -v ./build/*.d ./build/*.o ./build/*.test ./cmus-rpcd >&2 || :
