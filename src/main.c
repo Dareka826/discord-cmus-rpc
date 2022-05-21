@@ -9,6 +9,10 @@
 #include <unistd.h>
 #include <signal.h>
 
+#ifndef _VERSION
+#define _VERSION "<no version>"
+#endif
+
 volatile sig_atomic_t requested_exit = 0;
 
 void handle_exit(int signum) {
@@ -16,9 +20,7 @@ void handle_exit(int signum) {
 }
 
 int main() {
-    // TODO:
-    // - free stuff on SIGTERM
-
+    printf("[I]: cmus-rpcd version: %s\n", _VERSION);
     discord_init();
 
     signal(SIGTERM, handle_exit);
