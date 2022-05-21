@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 #include <math.h>
 #include <assert.h>
 
@@ -137,6 +138,7 @@ void cmus_get_metadata(struct cmus_state * const cs) { /*{{{*/
     } else {
         // Parent
         close(pipefd[PIPE_WRITE]);
+        signal(SIGCHLD, SIG_IGN); // Ignore child exit (prevent zombie processes)
         FILE *child = fdopen(pipefd[PIPE_READ], "r");
 
         char *line = NULL; // Line string
