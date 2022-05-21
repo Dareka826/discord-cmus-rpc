@@ -329,6 +329,8 @@ void cmus_get_metadata(struct cmus_state * const cs) { /*{{{*/
         if(line != NULL) // Clean up after getline
             nfreen(line, "getline cleanup");
 
+        fclose(child); // Is this really the fix? I forgor to close the file???
+
         if(MEM_INFO_D) fprintf(stderr, "[I]: Finished parsing cmus metadata\n");
     }
 } /*}}}*/
