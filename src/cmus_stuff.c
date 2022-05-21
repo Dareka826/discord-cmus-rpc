@@ -9,7 +9,7 @@
 #include <math.h>
 #include <assert.h>
 
-void free_cmus_state(struct cmus_state *c) { /*{{{*/
+void free_cmus_state(struct cmus_state * const c) { /*{{{*/
     if(MEM_INFO_D) fprintf(stderr, "[I]: Freeing cmus_state\n");
 
     if(c->title)       nfreen(c->title,       "cmus_state title");
@@ -33,6 +33,8 @@ tag title Reincarnation feat. Hatsune Miku
 tag tracknumber 1
 }}} */
 void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /*{{{*/
+    assert(cs != NULL);
+
     // Check if cmus is running
     if(strncmp(line, "cmus-remote: cmus is not running", 32) == 0) {
         cs->status = 0;
@@ -171,8 +173,10 @@ void cmus_get_metadata(struct cmus_state * const cs) { /*{{{*/
     }
 } /*}}}*/
 
-void create_status(struct cmus_state const * const cs, /*{{{*/
+void create_status(const struct cmus_state * const cs, /*{{{*/
                    struct presence_state * const ps) {
+    assert(cs != NULL);
+    assert(ps != NULL);
 
     // State format: {{{
     // title?

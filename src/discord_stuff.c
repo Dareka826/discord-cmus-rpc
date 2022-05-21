@@ -7,25 +7,25 @@
 
 const char * const APP_ID = "976582643938377749";
 
-void free_presence_state(struct presence_state *ps) {
+void free_presence_state(struct presence_state * const ps) { /*{{{*/
     if(MEM_INFO_D) fprintf(stderr, "[I]: Freeing presence_state\n");
 
     if(ps->state)   nfreen(ps->state,   "presence_state state");
     if(ps->details) nfreen(ps->details, "presence_state details");
 
     if(MEM_INFO_D) fprintf(stderr, "[I]: Finished freeing presence_state\n");
-}
+} /*}}}*/
 
 // Functions to notify of events {{{
-void discord_on_ready(const DiscordUser *connected_user) {
+void discord_on_ready(const DiscordUser * const connected_user) {
     fprintf(stderr, "[I]: Discord ready!\n");
 }
 
-void discord_on_error(int error_code, const char *message) {
+void discord_on_error(int error_code, const char * const message) {
     fprintf(stderr, "%s[E]:%s Discord error!\n", _C(ERROR), _C(CLEAR));
 }
 
-void discord_on_disconnected(int error_code, const char *message) {
+void discord_on_disconnected(int error_code, const char * const message) {
     fprintf(stderr, "%s[E]%s: Discord disconnected!\n", _C(ERROR), _C(CLEAR));
 } /*}}}*/
 
@@ -44,7 +44,7 @@ void discord_init() {
 void (*discord_shutdown)(void) = Discord_Shutdown;
 
 // Queues up an updare to rpc status (one change per 15 secs)
-void discord_update_presence(struct presence_state *ps) { /*{{{*/
+void discord_update_presence(const struct presence_state * const ps) { /*{{{*/
     DiscordRichPresence presence;
     memset(&presence, 0, sizeof(presence));
 

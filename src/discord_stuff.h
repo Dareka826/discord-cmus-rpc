@@ -11,12 +11,12 @@ struct presence_state {
     int time_left;
 };
 
-void free_presence_state(struct presence_state *ps);
+void free_presence_state(struct presence_state * const ps);
 
 // Functions to notify of events
-void discord_on_ready(const DiscordUser *connected_user);
-void discord_on_error(int error_code, const char *message);
-void discord_on_disconnected(int error_code, const char *message);
+void discord_on_ready(const DiscordUser * const connected_user);
+void discord_on_error(int error_code, const char * const message);
+void discord_on_disconnected(int error_code, const char * const message);
 
 // Initialize rpc connection
 void discord_init();
@@ -25,7 +25,7 @@ void discord_init();
 extern void (*discord_shutdown)(void);
 
 // Add rpc status change to queue
-void discord_update_presence(struct presence_state *ps);
+void discord_update_presence(const struct presence_state * const ps);
 
 // Clear rpc status
 extern void (*discord_clear_presence)(void);

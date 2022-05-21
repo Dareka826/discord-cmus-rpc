@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include "colors.h"
 
-void * xmallocn(size_t s, const char * const name) {
-    void *p = malloc(s);
+void * xmallocn(size_t s, const char * const name) { /*{{{*/
+    void * const p = malloc(s);
 
     if(p == NULL) {
         fprintf(stderr, "%s[E]%s: malloc() failed, exiting...\n",
@@ -19,15 +19,15 @@ void * xmallocn(size_t s, const char * const name) {
         else fprintf(stderr, "[I]: %s[MEM]%s allocated %lu bytes at %p\n",
                      _C(MEM), _C(CLEAR), s, p);
     }
+
     return p;
-}
+} /*}}}*/
 
 void * xmalloc(size_t s) {
     return xmallocn(s, NULL);
 }
 
-
-void _nfreen(void *p, const char * const name) {
+void _nfreen(void * const p, const char * const name) { /*{{{*/
     if(MEM_INFO_D == 1) {
         if(p != NULL) {
             if(name != NULL)
@@ -48,9 +48,8 @@ void _nfreen(void *p, const char * const name) {
                      _C(WARN), _C(CLEAR), _C(MEM), _C(CLEAR),
                      _C(NULLFREE), _C(CLEAR));
     }
-}
+} /*}}}*/
 
-
-void _nfree(void *p) {
+void _nfree(void * const p) {
     _nfreen(p, NULL);
 }

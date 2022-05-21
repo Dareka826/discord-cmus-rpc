@@ -24,8 +24,8 @@ void * xmallocn(size_t s, const char * const name);
 void * xmalloc(size_t s);
 
 // Free that protects against freeing NULL and warns
-void _nfreen(void *p, const char * const name);
-void _nfree(void *p);
+void _nfreen(void * const p, const char * const name);
+void _nfree(void * const p);
 
 // Free that sets the freed ptr to NULL afterwards
 #define nfree(ptr)       { _nfree(ptr);        ptr = NULL; }
