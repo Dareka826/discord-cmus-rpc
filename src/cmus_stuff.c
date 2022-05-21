@@ -35,7 +35,6 @@ tag tracknumber 1
 void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /*{{{*/
     // Check if cmus is running
     if(strncmp(line, "cmus-remote: cmus is not running", 32) == 0) {
-        fprintf(stderr, "[I]: cmus not running\n");
         cs->status = 0;
         return;
     }
