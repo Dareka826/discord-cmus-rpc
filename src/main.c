@@ -6,14 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <unistd.h>
-#include <math.h>
-#include <assert.h>
-
-#ifndef MEM_INFO_D
-#define MEM_INFO_D 0
-#endif
 
 int main() {
     // TODO:
