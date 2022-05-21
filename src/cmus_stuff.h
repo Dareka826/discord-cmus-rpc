@@ -26,4 +26,7 @@ void cmus_get_metadata(struct cmus_state * const cs);
 // Create a formatted state out of data from cmus
 void create_status(struct cmus_state const * const cs, struct presence_state * const ps);
 
+// For internal use
+void _cmus_parse_line(struct cmus_state * const cs, const char * const line);
+
 #endif

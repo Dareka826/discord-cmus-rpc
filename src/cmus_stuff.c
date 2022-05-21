@@ -32,7 +32,7 @@ tag artist Spacelectro
 tag title Reincarnation feat. Hatsune Miku
 tag tracknumber 1
 }}} */
-void cmus_parse_line(struct cmus_state * const cs, const char * const line) { /*{{{*/
+void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /*{{{*/
     // Check if cmus is running
     if(strncmp(line, "cmus-remote: cmus is not running", 32) == 0) {
         fprintf(stderr, "[I]: cmus not running\n");
@@ -155,7 +155,7 @@ void cmus_get_metadata(struct cmus_state * const cs) { /*{{{*/
             if(line[read_len-1] == '\n')
                 line[read_len-1] = '\0';
 
-            cmus_parse_line(cs, line);
+            _cmus_parse_line(cs, line);
             if(cs->status == 0) break; // Not playing
 
             // Free memory allocated by getline()
