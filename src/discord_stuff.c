@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
+const char * const APP_ID = "976582643938377749";
+
 void free_presence_state(struct presence_state *ps) {
     if(MEM_INFO_D) fprintf(stderr, "[I]: Freeing presence_state\n");
 

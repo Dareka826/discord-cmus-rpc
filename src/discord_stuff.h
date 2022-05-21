@@ -3,7 +3,7 @@
 
 #include "../discord-rpc/include/discord_rpc.h"
 
-const char * const APP_ID = "976582643938377749";
+extern const char * const APP_ID;
 
 struct presence_state {
     char *state;
