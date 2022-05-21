@@ -4,4 +4,7 @@ redo-ifchange ./config.sh
 OBJ="./build/colors.o ./build/utils.o ./build/discord_stuff.o ./build/cmus_stuff.o ./build/main.o"
 redo-ifchange ${OBJ}
 
-${CC} ${OBJ} ${CFLAGS:-} ${LDFLAGS:-} -o $3
+LDFLAGS="${LDFLAGS} -L./discord-rpc/builds/linux-static/src -ldiscord-rpc"
+
+# Link
+${CXX:-g++} ${OBJ} ${CFLAGS} ${LDFLAGS} -o "${3}"

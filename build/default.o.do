@@ -1,9 +1,11 @@
 redo-ifchange ../config.sh
 . ../config.sh
 
-redo-ifchange ../src/$2.c
+redo-ifchange "../src/${2}.c"
 
-${CC} ${CFLAGS:-} -MD -MF $2.d -c -o $3 ../src/$2.c
+# Compile
+${CC:-gcc} -c "../src/${2}.c" ${CFLAGS} -MD -MF "${2}.d" -o "${3}"
 
-read DEPS <$2.d
+# Depend on dependencies
+read DEPS <"${2}.d"
 redo-ifchange ${DEPS#*:}
