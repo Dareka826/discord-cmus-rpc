@@ -3,6 +3,10 @@
 
 #include <stdlib.h>
 
+#ifndef MEM_INFO_D
+#define MEM_INFO_D 0
+#endif
+
 // Comparison
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))

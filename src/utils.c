@@ -3,10 +3,6 @@
 #include <stdio.h>
 #include "colors.h"
 
-#ifndef MEM_INFO_D
-#define MEM_INFO_D 0
-#endif
-
 void * xmallocn(size_t s, const char * const name) {
     void *p = malloc(s);
 
