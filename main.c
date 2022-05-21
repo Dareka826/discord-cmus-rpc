@@ -5,6 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <math.h>
+#include <assert.h>
 
 #ifndef MEM_INFO_D
 #define MEM_INFO_D 0
@@ -202,7 +203,9 @@ tag artist Spacelectro
 tag title Reincarnation feat. Hatsune Miku
 tag tracknumber 1
 }}} */
-void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
+void cmus_get_metadata(struct cmus_state * const cs) { /*{{{*/
+    assert(cs != NULL);
+
     // Spawn cmus-remote and parse its output
     int pipefd[2];
     pipe(pipefd);
@@ -228,10 +231,6 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
         size_t len = 0;
         size_t read_len = 0; // Length of read-in line
 
-        struct cmus_state cs;
-        memset(&cs, 0, sizeof(cs));
-        cs.tracknumber = -1;
-
         if(MEM_INFO_D) fprintf(stderr, "[I]: Parsing cmus metadata\n");
         while((read_len = getline(&line, &len, child)) != -1) {
             //if(MEM_INFO_D == 1)
@@ -245,7 +244,7 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
             // Check if cmus is running
             if(strncmp(line, "cmus-remote: cmus is not running", 32) == 0) {
                 fprintf(stderr, "[I]: cmus not running\n");
-                cs.status = 0;
+                cs->status = 0;
                 nfreen(line, "line: cmus not running");
                 break;
             }
@@ -255,83 +254,80 @@ void cmus_get_metadata(struct cmus_state *c) { /*{{{*/
                 // Title
                 if(strncmp(line+4, "title ", 6) == 0) {
                     int len = strnlen(line+10, 4096) + 1;
-                    cs.title = (char*) xmallocn(len, "parsed title");
-                    memset(cs.title, 0, len);
+                    cs->title = (char*) xmallocn(len, "parsed title");
+                    memset(cs->title, 0, len);
 
-                    strncpy(cs.title, line+10, len);
+                    strncpy(cs->title, line+10, len);
                 }
 
                 // Artist
                 else if(strncmp(line+4, "artist ", 7) == 0) {
                     int len = strnlen(line+11, 4096) + 1;
-                    cs.artist = (char*) xmallocn(len, "parsed artist");
-                    memset(cs.artist, 0, len);
+                    cs->artist = (char*) xmallocn(len, "parsed artist");
+                    memset(cs->artist, 0, len);
 
-                    strncpy(cs.artist, line+11, len);
+                    strncpy(cs->artist, line+11, len);
                 }
 
                 // Track
                 else if(strncmp(line+4, "tracknumber ", 12) == 0) {
                     long num = strtol(line+16, NULL, 10);
-                    cs.tracknumber = num;
+                    cs->tracknumber = num;
                 }
 
                 // Album
                 else if(strncmp(line+4, "album ", 6) == 0) {
                     int len = strnlen(line+10, 4096) + 1;
-                    cs.album = (char*) xmallocn(len, "parsed album");
-                    memset(cs.album, 0, len);
+                    cs->album = (char*) xmallocn(len, "parsed album");
+                    memset(cs->album, 0, len);
 
-                    strncpy(cs.album, line+10, len);
+                    strncpy(cs->album, line+10, len);
                 }
 
                 // Album Artist
                 else if(strncmp(line+4, "albumartist ", 12) == 0) {
                     int len = strnlen(line+16, 4096) + 1;
-                    cs.albumartist = (char*) xmallocn(len, "parsed album_artist");
-                    memset(cs.albumartist, 0, len);
+                    cs->albumartist = (char*) xmallocn(len, "parsed album_artist");
+                    memset(cs->albumartist, 0, len);
 
-                    strncpy(cs.albumartist, line+16, len);
+                    strncpy(cs->albumartist, line+16, len);
                 }
             }
 
             // Are we playing?
             else if(strncmp(line, "status ", 7) == 0) {
                 if(strncmp(line+7, "playing", 7) == 0)
-                     cs.status = 1;
-                else cs.status = 0;
+                     cs->status = 1;
+                else cs->status = 0;
             }
 
             // Where we are in the track
             else if(strncmp(line, "position ", 9) == 0) {
                 long num = strtol(line+9, NULL, 10);
-                cs.position = num;
+                cs->position = num;
             }
 
             // Track length
             else if(strncmp(line, "duration ", 9) == 0) {
                 long num = strtol(line+9, NULL, 10);
-                cs.duration = num;
+                cs->duration = num;
             }
 
             // Which file is being played
             else if(strncmp(line, "file ", 5) == 0) {
                 int len = strnlen(line+5, 4096) + 1;
-                cs.file = (char*) xmallocn(len, "parsed file");
-                memset(cs.file, 0, len);
+                cs->file = (char*) xmallocn(len, "parsed file");
+                memset(cs->file, 0, len);
 
-                strncpy(cs.file, line+5, len);
+                strncpy(cs->file, line+5, len);
             }
 
             // Free memory allocated by getline()
             nfreen(line, "line: end of loop");
         }
-        if(line != NULL) // Clean up if getline fails
+        if(line != NULL) // Clean up after getline
             nfreen(line, "getline cleanup");
 
-        // Copy gathered data into giver struct pointer
-        // TODO: work on the pointer without a local copy
-        memcpy(c, &cs, sizeof(cs));
         if(MEM_INFO_D) fprintf(stderr, "[I]: Finished parsing cmus metadata\n");
     }
 } /*}}}*/
@@ -462,6 +458,7 @@ int main() {
     // Main logic {{{
     while(1) {
         if(MEM_INFO_D) fprintf(stderr, "\n");
+        memset(&cs, 0, sizeof(cs));
         cmus_get_metadata(&cs);
 
         if(cs.status == 1) {
