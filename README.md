@@ -28,16 +28,16 @@ While the `cmus-rpcd` binary is running it will check cmus status every second a
 
 ### State
 
-If tracknumber, artist and title are present:
+If `tracknumber`, `artist` and `title` are present:
 `<tracknumber>. <artist> - <title>`
 
-If artist and title are present:
+If `artist` and `title` are present:
 `<artist> - <title>`
 
-If tracknumber and title are present:
+If `tracknumber` and `title` are present:
 `<tracknumber>. <title>`
 
-If only title is present:
+If only `title` is present:
 `<title>`
 
 If none of the above are present, use the filename:
@@ -45,10 +45,10 @@ If none of the above are present, use the filename:
 
 ### Details
 
-If album and albumartist are present:
+If `album` and `albumartist` are present:
 `[<albumartist>] <album>`
 
-If only album is present:
+If only `album` is present:
 `<album>`
 
 If neither are present, nothing is displayed in the details.
