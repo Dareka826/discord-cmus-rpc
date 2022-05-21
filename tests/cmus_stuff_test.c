@@ -23,11 +23,11 @@ int main() {
     assert(cs.duration    == 0);
     assert(cs.tracknumber == 0);
 
-    const char * str1 = "Test string 1";
-    const char * str2 = "Test string 2";
-    const char * str3 = "A test string 3";
-    const char * str4 = "Another test string 4!!!";
-    const char * str5 = "Just some string 5";
+    const char * const str1 = "Test string 1";
+    const char * const str2 = "Test string 2";
+    const char * const str3 = "A test string 3";
+    const char * const str4 = "Another test string 4!!!";
+    const char * const str5 = "Just some string 5";
 
     cs.title       = (char*) xmalloc(strlen(str1)+1);
     cs.file        = (char*) xmalloc(strlen(str2)+1);
@@ -68,7 +68,7 @@ int main() {
     memset(&cs, 0, sizeof(cs));
 
     cs.status = -1;
-    const char * str6 = "cmus-remote: cmus is not running";
+    const char * const str6 = "cmus-remote: cmus is not running";
     _cmus_parse_line(&cs, str6);
 
     assert(cs.status == 0);
@@ -87,7 +87,7 @@ int main() {
     // Tag: title {{{
     memset(&cs, 0, sizeof(cs));
 
-    const char * str7 = "tag title some nice title";
+    const char * const str7 = "tag title some nice title";
     _cmus_parse_line(&cs, str7);
 
     assert(cs.title != NULL);
@@ -107,7 +107,7 @@ int main() {
     // Tag: artist {{{
     memset(&cs, 0, sizeof(cs));
 
-    const char * str8 = "tag artist A very talented artist!!#";
+    const char * const str8 = "tag artist A very talented artist!!#";
     _cmus_parse_line(&cs, str8);
 
     assert(cs.artist != NULL);
@@ -127,7 +127,7 @@ int main() {
     // Tag: album {{{
     memset(&cs, 0, sizeof(cs));
 
-    const char * str9 = "tag album Some nice hardstyle VOL//1";
+    const char * const str9 = "tag album Some nice hardstyle VOL//1";
     _cmus_parse_line(&cs, str9);
 
     assert(cs.album != NULL);
@@ -147,7 +147,7 @@ int main() {
     // Tag: albumartist {{{
     memset(&cs, 0, sizeof(cs));
 
-    const char * str10 = "tag albumartist Som3 F#uckng Ga1 3x";
+    const char * const str10 = "tag albumartist Som3 F#uckng Ga1 3x";
     _cmus_parse_line(&cs, str10);
 
     assert(cs.albumartist != NULL);
@@ -262,7 +262,7 @@ int main() {
     // File {{{
     memset(&cs, 0, sizeof(cs));
 
-    const char * str11 = "file /some/directory/and/file - nice name.opus";
+    const char * const str11 = "file /some/directory/and/file - nice name.opus";
     _cmus_parse_line(&cs, str11);
 
     assert(cs.file != NULL);
@@ -286,7 +286,7 @@ int main() {
     memset(&cs, 0, sizeof(cs));
     memset(&ps, 0, sizeof(ps));
 
-    const char * str12 = "file /some/nice/dir/##. artist - nice file.opus";
+    const char * const str12 = "file /some/nice/dir/##. artist - nice file.opus";
     _cmus_parse_line(&cs, str12);
     create_status(&cs, &ps);
 
@@ -299,7 +299,7 @@ int main() {
     memset(&cs, 0, sizeof(cs));
     memset(&ps, 0, sizeof(ps));
 
-    const char * str13 = "tag title <nice title>";
+    const char * const str13 = "tag title <nice title>";
     _cmus_parse_line(&cs, str13);
     create_status(&cs, &ps);
 
@@ -338,7 +338,7 @@ int main() {
     memset(&cs, 0, sizeof(cs));
     memset(&ps, 0, sizeof(ps));
 
-    const char * str14 = "tag artist <artist 348u>";
+    const char * const str14 = "tag artist <artist 348u>";
     _cmus_parse_line(&cs, str14);
     _cmus_parse_line(&cs, str13);
     create_status(&cs, &ps);
@@ -377,7 +377,7 @@ int main() {
     memset(&cs, 0, sizeof(cs));
     memset(&ps, 0, sizeof(ps));
 
-    const char * str15 = "tag album \"The greatest album ever #02\"*";
+    const char * const str15 = "tag album \"The greatest album ever #02\"*";
     _cmus_parse_line(&cs, str15);
     create_status(&cs, &ps);
 

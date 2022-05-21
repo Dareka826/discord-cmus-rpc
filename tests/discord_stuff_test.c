@@ -15,8 +15,8 @@ int main() {
     assert(ps.details   == NULL);
     assert(ps.time_left == 0);
 
-    const char * str1 = "Test1";
-    const char * str2 = "Another string!";
+    const char * const str1 = "Test1";
+    const char * const str2 = "Another string!";
 
     ps.state   = (char*) xmalloc(strlen(str1)+1);
     ps.details = (char*) xmalloc(strlen(str2)+1);
