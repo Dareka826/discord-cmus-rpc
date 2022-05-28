@@ -23,6 +23,10 @@ enum {
 void * xmallocn(size_t s, const char * const name);
 void * xmalloc(size_t s);
 
+// Calloc that exits on error
+void * xcallocn(size_t s, const char * const name);
+void * xcalloc(size_t s);
+
 // Free that protects against freeing NULL and warns
 void _nfreen(void * const p, const char * const name);
 void _nfree(void * const p);
