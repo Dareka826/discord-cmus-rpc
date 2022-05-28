@@ -47,8 +47,7 @@ void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /
         // Title
         if(strncmp(line+4, "title ", 6) == 0) {
             int len = strnlen(line+10, 4096) + 1;
-            cs->title = (char*) xmallocn(len, "parsed title");
-            memset(cs->title, 0, len);
+            cs->title = (char*) xcallocn(len, "parsed title");
 
             strncpy(cs->title, line+10, len);
         }
@@ -56,8 +55,7 @@ void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /
         // Artist
         else if(strncmp(line+4, "artist ", 7) == 0) {
             int len = strnlen(line+11, 4096) + 1;
-            cs->artist = (char*) xmallocn(len, "parsed artist");
-            memset(cs->artist, 0, len);
+            cs->artist = (char*) xcallocn(len, "parsed artist");
 
             strncpy(cs->artist, line+11, len);
         }
@@ -71,8 +69,7 @@ void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /
         // Album
         else if(strncmp(line+4, "album ", 6) == 0) {
             int len = strnlen(line+10, 4096) + 1;
-            cs->album = (char*) xmallocn(len, "parsed album");
-            memset(cs->album, 0, len);
+            cs->album = (char*) xcallocn(len, "parsed album");
 
             strncpy(cs->album, line+10, len);
         }
@@ -80,8 +77,7 @@ void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /
         // Album Artist
         else if(strncmp(line+4, "albumartist ", 12) == 0) {
             int len = strnlen(line+16, 4096) + 1;
-            cs->albumartist = (char*) xmallocn(len, "parsed album_artist");
-            memset(cs->albumartist, 0, len);
+            cs->albumartist = (char*) xcallocn(len, "parsed album_artist");
 
             strncpy(cs->albumartist, line+16, len);
         }
@@ -109,8 +105,7 @@ void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /
     // Which file is being played
     else if(strncmp(line, "file ", 5) == 0) {
         int len = strnlen(line+5, 4096) + 1;
-        cs->file = (char*) xmallocn(len, "parsed file");
-        memset(cs->file, 0, len);
+        cs->file = (char*) xcallocn(len, "parsed file");
 
         strncpy(cs->file, line+5, len);
     }
