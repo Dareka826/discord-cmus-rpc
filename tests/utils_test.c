@@ -20,16 +20,27 @@ int main() {
     assert(PIPE_WRITE <= 1);
 
     // Memory utils
+
+    // xmalloc
     char *p = (char*) xmalloc(10);
     assert(p != NULL && "xmalloc returned NULL"); // Should never happen (xmalloc would just exit)
 
     // Check that the allocated memory is ok
-    memset(p, 0, 10);
+    memset(p, 0x12, 10);
     for(int i = 0; i < 10; i++)
-        assert(p[i] == 0 && "memory didn't give back what was written");
+        assert(p[i] == 0x12 && "memory didn't give back what was written");
 
     nfree(p);
     assert(p == NULL && "nfree didn't set ptr to NULL");
+
+    // xcalloc
+    p = (char*) xcalloc(20);
+    assert(p != NULL && "xcalloc returned NULL");
+
+    for(int i = 0; i < 20; i++)
+        assert(p[i] == 0 && "memory returned by calloc not zeroed");
+
+    nfree(p);
 
     return EXIT_SUCCESS;
 }
