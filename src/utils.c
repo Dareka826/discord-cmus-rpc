@@ -1,9 +1,11 @@
 #include "utils.h"
 
 #include <stdio.h>
+#include <assert.h>
 #include "colors.h"
 
 void * xmallocn(size_t s, const char * const name) { /*{{{*/
+    assert(s > 0);
     void * const p = malloc(s);
 
     if(p == NULL) {
@@ -28,6 +30,7 @@ void * xmalloc(size_t s) {
 }
 
 void * xcallocn(size_t s, const char * const name) { /*{{{*/
+    assert(s > 0);
     void * const p = calloc(1, s);
 
     if(p == NULL) {

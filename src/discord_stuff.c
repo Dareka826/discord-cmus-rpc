@@ -4,10 +4,12 @@
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 const char * const APP_ID = "976582643938377749";
 
 void free_presence_state(struct presence_state * const ps) { /*{{{*/
+    assert(ps != NULL);
     if(MEM_INFO_D) fprintf(stderr, "[I]: Freeing presence_state\n");
 
     if(ps->state)   nfreen(ps->state,   "presence_state state");
@@ -45,6 +47,8 @@ void (*discord_shutdown)(void) = Discord_Shutdown;
 
 // Queues up an updare to rpc status (one change per 15 secs)
 void discord_update_presence(const struct presence_state * const ps) { /*{{{*/
+    assert(ps != NULL);
+
     DiscordRichPresence presence;
     memset(&presence, 0, sizeof(presence));
 

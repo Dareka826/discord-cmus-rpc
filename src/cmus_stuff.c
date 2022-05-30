@@ -11,6 +11,7 @@
 #include <assert.h>
 
 void free_cmus_state(struct cmus_state * const c) { /*{{{*/
+    assert(c != NULL);
     if(MEM_INFO_D) fprintf(stderr, "[I]: Freeing cmus_state\n");
 
     if(c->title)       nfreen(c->title,       "cmus_state title");
