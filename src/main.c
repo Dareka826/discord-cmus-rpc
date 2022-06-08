@@ -37,11 +37,6 @@ int main() {
     old_ps.details = (char*) xmalloc(1);
     old_ps.details[0] = '\0';
 
-    // Ready, signal it
-    FILE *ready = fdopen(3, "w");
-    fwrite("\n", 1, 1, ready);
-    fclose(ready);
-
     // Main logic {{{
     while(requested_exit == 0) {
         if(MEM_INFO_D) fprintf(stderr, "\n"); // Better visibility
