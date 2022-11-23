@@ -1,3 +1,6 @@
 [submodule "discord-rpc"]
 	path = discord-rpc
 	url = https://github.com/discord/discord-rpc
+[submodule "src/snippets"]
+	path = src/snippets
+	url = https://github.com/dareka826/snippets
