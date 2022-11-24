@@ -3,6 +3,8 @@
 #include "colors.h"
 #include "utils.h"
 #include "discord_stuff.h"
+#include "snippets/arena/arena.h"
+
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -34,7 +36,7 @@ tag artist Spacelectro
 tag title Reincarnation feat. Hatsune Miku
 tag tracknumber 1
 }}} */
-void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /*{{{*/
+void _cmus_parse_line(Arena * const ap, struct cmus_state * const cs, const char * const line) { /*{{{*/
     assert(cs != NULL);
 
     // Check if cmus is running
@@ -48,7 +50,7 @@ void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /
         // Title
         if(strncmp(line+4, "title ", 6) == 0) {
             int len = strnlen(line+10, 4096) + 1;
-            cs->title = (char*) xcallocn(len, "parsed title");
+            cs->title = (char*) arena_xalloc0(ap, len);
 
             strncpy(cs->title, line+10, len);
         }
@@ -56,7 +58,7 @@ void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /
         // Artist
         else if(strncmp(line+4, "artist ", 7) == 0) {
             int len = strnlen(line+11, 4096) + 1;
-            cs->artist = (char*) xcallocn(len, "parsed artist");
+            cs->artist = (char*) arena_xalloc0(ap, len);
 
             strncpy(cs->artist, line+11, len);
         }
@@ -70,7 +72,7 @@ void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /
         // Album
         else if(strncmp(line+4, "album ", 6) == 0) {
             int len = strnlen(line+10, 4096) + 1;
-            cs->album = (char*) xcallocn(len, "parsed album");
+            cs->album = (char*) arena_xalloc0(ap, len);
 
             strncpy(cs->album, line+10, len);
         }
@@ -78,7 +80,7 @@ void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /
         // Album Artist
         else if(strncmp(line+4, "albumartist ", 12) == 0) {
             int len = strnlen(line+16, 4096) + 1;
-            cs->albumartist = (char*) xcallocn(len, "parsed album_artist");
+            cs->albumartist = (char*) arena_xalloc0(ap, len);
 
             strncpy(cs->albumartist, line+16, len);
         }
@@ -106,13 +108,13 @@ void _cmus_parse_line(struct cmus_state * const cs, const char * const line) { /
     // Which file is being played
     else if(strncmp(line, "file ", 5) == 0) {
         int len = strnlen(line+5, 4096) + 1;
-        cs->file = (char*) xcallocn(len, "parsed file");
+        cs->file = (char*) arena_xalloc0(ap, len);
 
         strncpy(cs->file, line+5, len);
     }
 } /*}}}*/
 
-void cmus_get_metadata(struct cmus_state * const cs) { /*{{{*/
+void cmus_get_metadata(Arena * const ap, struct cmus_state * const cs) { /*{{{*/
     assert(cs != NULL);
 
     // Spawn cmus-remote and parse its output
@@ -155,7 +157,7 @@ void cmus_get_metadata(struct cmus_state * const cs) { /*{{{*/
             if(line[read_len-1] == '\n')
                 line[read_len-1] = '\0';
 
-            _cmus_parse_line(cs, line);
+            _cmus_parse_line(ap, cs, line);
             if(cs->status == 0) break; // Not playing
 
             // Free memory allocated by getline()
@@ -171,7 +173,8 @@ void cmus_get_metadata(struct cmus_state * const cs) { /*{{{*/
     }
 } /*}}}*/
 
-void create_status(const struct cmus_state * const cs, /*{{{*/
+void create_status(Arena * const ap, /*{{{*/
+                   const struct cmus_state * const cs,
                    struct presence_state * const ps) {
     assert(cs != NULL);
     assert(ps != NULL);
@@ -216,13 +219,13 @@ void create_status(const struct cmus_state * const cs, /*{{{*/
                 if(cs->tracknumber < 10) state_len++;
 
                 state_len += 2 + 3; // ". ",  " - "
-                ps->state = (char*) xmallocn(state_len+1, "create state");
+                ps->state = (char*) arena_xalloc(ap, state_len+1);
                 snprintf(ps->state, state_len+1, "%02d. %s - %s", cs->tracknumber, cs->artist, cs->title);
             } else {
                 // artist - title
 
                 state_len += 3; // " - "
-                ps->state = (char*) xmallocn(state_len+1, "create state");
+                ps->state = (char*) arena_xalloc(ap, state_len+1);
                 snprintf(ps->state, state_len+1, "%s - %s", cs->artist, cs->title);
             }
         } else {
@@ -232,12 +235,12 @@ void create_status(const struct cmus_state * const cs, /*{{{*/
                 if(cs->tracknumber < 10) state_len++;
 
                 state_len += 2; // ". "
-                ps->state = (char*) xmallocn(state_len+1, "create state");
+                ps->state = (char*) arena_xalloc(ap, state_len+1);
                 snprintf(ps->state, state_len+1, "%02d. %s", cs->tracknumber, cs->title);
             } else {
                 // title
 
-                ps->state = (char*) xmallocn(state_len+1, "create state");
+                ps->state = (char*) arena_xalloc(ap, state_len+1);
                 snprintf(ps->state, state_len+1, "%s", cs->title);
             }
         }
@@ -248,7 +251,7 @@ void create_status(const struct cmus_state * const cs, /*{{{*/
 
         state_len += strnlen(fname_start, 512);
 
-        ps->state = (char*) xmallocn(state_len+1, "create state");
+        ps->state = (char*) arena_xalloc(ap, state_len+1);
         strncpy(ps->state, fname_start, state_len+1);
     }
 
@@ -262,17 +265,17 @@ void create_status(const struct cmus_state * const cs, /*{{{*/
             details_len += strnlen(cs->albumartist, 512);
 
             details_len += 3; // "[", "] "
-            ps->details = (char*) xmallocn(details_len+1, "create details");
+            ps->details = (char*) arena_xalloc(ap, details_len+1);
             snprintf(ps->details, details_len+1, "[%s] %s", cs->albumartist, cs->album);
         } else {
             // album
 
-            ps->details = (char*) xmallocn(details_len+1, "create details");
+            ps->details = (char*) arena_xalloc(ap, details_len+1);
             snprintf(ps->details, details_len+1, "%s", cs->album);
         }
     } else {
         // empty
-        ps->details = (char*) xmalloc(1);
+        ps->details = (char*) arena_xalloc(ap, 1);
         ps->details[0] = '\0';
     }
 
