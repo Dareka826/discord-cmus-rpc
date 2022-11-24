@@ -93,6 +93,9 @@ int main() {
             _mem_info_log("%s[MEM]%s ps_a -> old_ps_a\n", _C(GREEN), _C(CLEAR));
             old_ps_a = ps_a;
             ps_a = NULL;
+            #if defined(ARENA_MEM_DBG) && defined(ARENA_DBG_NAME)
+            old_ps_a->name = "old_ps_a";
+            #endif
 
             memcpy(&old_ps, &ps, sizeof(struct presence_state));
 
