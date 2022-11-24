@@ -34,7 +34,10 @@ void _nfreen(void * const p, const char * const name);
 void _nfree(void * const p);
 
 // Free that sets the freed ptr to NULL afterwards
-#define nfree(ptr)       { _nfree(ptr);        ptr = NULL; }
-#define nfreen(ptr,name) { _nfreen(ptr, name); ptr = NULL; }
+#define nfree(ptr)        do { _nfree(ptr);        ptr = NULL; } while (0)
+#define nfreen(ptr, name) do { _nfreen(ptr, name); ptr = NULL; } while (0)
+
+// Quiet nfree (for stdlib functions that allocate memory)
+#define nqfree(ptr) do { free(ptr); ptr = NULL; } while (0)
 
 #endif
