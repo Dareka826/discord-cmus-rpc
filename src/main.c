@@ -42,7 +42,10 @@ int main() {
 
     // Main logic {{{
     while(requested_exit == 0) {
+        _mem_info_log("\n"); // Better visibility
+        _mem_info_log("%s[MEM]%s New Arena: cs_a\n", _C(GREEN), _C(CLEAR));
         cs_a = create_arena();
+        _mem_info_log("%s[MEM]%s New Arena: ps_a\n", _C(GREEN), _C(CLEAR));
         ps_a = create_arena();
 
         // Clear out variables
@@ -86,9 +89,11 @@ int main() {
             old_status = 1;
 
             // Free old data
+            _mem_info_log("%s[MEM]%s Free Arena: old_ps_a\n", _C(GREEN), _C(CLEAR));
             nfree_arena(old_ps_a);
 
             // Move new data into old
+            _mem_info_log("%s[MEM]%s ps_a -> old_ps_a\n", _C(GREEN), _C(CLEAR));
             old_ps_a = ps_a;
             ps_a = NULL;
 
@@ -104,8 +109,10 @@ int main() {
             }
         }
 
+        _mem_info_log("%s[MEM]%s Free Arena: cs_a\n", _C(GREEN), _C(CLEAR));
         nfree_arena(cs_a);
 
+        _mem_info_log("\n"); // Better visibility
 
         // Prevent messages from piling-up
         fflush(stderr);
