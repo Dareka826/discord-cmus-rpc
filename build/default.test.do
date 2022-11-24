@@ -11,7 +11,7 @@ read DEPS <"${2}.test.d"
 redo-ifchange ${DEPS#*:}
 
 # Additional obj files (could be autodetected, but there's no reason)
-OBJ="colors.o utils.o discord_stuff.o cmus_stuff.o"
+OBJ="colors.o utils.o discord_stuff.o cmus_stuff.o ../src/snippets/build/arena/arena.o"
 redo-ifchange ${OBJ}
 
 LDFLAGS="${LDFLAGS} -L../discord-rpc/builds/linux-static/src -ldiscord-rpc"
