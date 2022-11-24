@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "discord_stuff.h"
 #include "cmus_stuff.h"
+#include "snippets/arena/arena.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,30 +27,33 @@ int main() {
     signal(SIGTERM, handle_exit);
     signal(SIGINT,  handle_exit);
 
+    Arena *cs_a = NULL,
+          *ps_a = NULL,
+          *old_ps_a = create_arena();
+
     struct cmus_state cs;
     struct presence_state ps, old_ps;
 
     int old_status = 0;
 
     memset(&old_ps, 0, sizeof(old_ps));
-    old_ps.state = (char*) xmalloc(1);
-    old_ps.state[0] = '\0';
-    old_ps.details = (char*) xmalloc(1);
-    old_ps.details[0] = '\0';
+    old_ps.state   = (char*) arena_xalloc0(old_ps_a, 1);
+    old_ps.details = (char*) arena_xalloc0(old_ps_a, 1);
 
     // Main logic {{{
     while(requested_exit == 0) {
-        if(MEM_INFO_D) fprintf(stderr, "\n"); // Better visibility
+        cs_a = create_arena();
+        ps_a = create_arena();
 
         // Clear out variables
         memset(&cs, 0, sizeof(cs));
         memset(&ps, 0, sizeof(ps));
 
-        cmus_get_metadata(&cs);
+        cmus_get_metadata(cs_a, &cs);
 
         // cmus is playing
         if(cs.status == 1) {
-            create_status(&cs, &ps);
+            create_status(ps_a, &cs, &ps);
 
             int changed = 0;
             // Check if status changed from last time {{{
@@ -81,7 +85,13 @@ int main() {
 
             old_status = 1;
 
-            free_presence_state(&old_ps); // Free old data
+            // Free old data
+            nfree_arena(old_ps_a);
+
+            // Move new data into old
+            old_ps_a = ps_a;
+            ps_a = NULL;
+
             memcpy(&old_ps, &ps, sizeof(struct presence_state));
 
         } else {
@@ -94,9 +104,8 @@ int main() {
             }
         }
 
-        free_cmus_state(&cs);
+        nfree_arena(cs_a);
 
-        if(MEM_INFO_D) fprintf(stderr, "\n"); // Better visibility
 
         // Prevent messages from piling-up
         fflush(stderr);
