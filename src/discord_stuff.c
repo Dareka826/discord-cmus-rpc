@@ -45,7 +45,7 @@ void discord_init() {
 
 void (*discord_shutdown)(void) = Discord_Shutdown;
 
-// Queues up an updare to rpc status (one change per 15 secs)
+// Queues up an update to rpc status (one change per 15 secs)
 void discord_update_presence(const struct presence_state * const ps) { /*{{{*/
     assert(ps != NULL);
 
