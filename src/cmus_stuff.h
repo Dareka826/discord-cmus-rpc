@@ -18,9 +18,6 @@ struct cmus_state {
     char *albumartist;
 };
 
-// Free all strings which aren't NULL
-void free_cmus_state(struct cmus_state * const c);
-
 // Parse the output of "cmus-remote -Q" into a cmus_state struct
 void cmus_get_metadata(Arena * const ap, struct cmus_state * const cs);
 

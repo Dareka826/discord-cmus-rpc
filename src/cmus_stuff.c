@@ -12,19 +12,6 @@
 #include <math.h>
 #include <assert.h>
 
-void free_cmus_state(struct cmus_state * const c) { /*{{{*/
-    assert(c != NULL);
-    if(MEM_INFO_D) fprintf(stderr, "[I]: Freeing cmus_state\n");
-
-    if(c->title)       nfreen(c->title,       "cmus_state title");
-    if(c->file)        nfreen(c->file,        "cmus_state file");
-    if(c->artist)      nfreen(c->artist,      "cmus_state artist");
-    if(c->album)       nfreen(c->album,       "cmus_state album");
-    if(c->albumartist) nfreen(c->albumartist, "cmus_state album_artist");
-
-    if(MEM_INFO_D) fprintf(stderr, "[I]: Finished freeing cmus_state\n");
-} /*}}}*/
-
 /* Example Data {{{
 status paused
 file /home/rin/Music/[SPACELECTRO] VOCALO EDM10 HEAVY/01. Spacelectro - Reincarnation feat. Hatsune Miku.opus
