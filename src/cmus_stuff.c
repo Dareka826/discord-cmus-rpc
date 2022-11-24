@@ -136,9 +136,6 @@ void cmus_get_metadata(Arena * const ap, struct cmus_state * const cs) { /*{{{*/
 
         // Read each line of output from child
         while((read_len = getline(&line, &len, child)) != -1) {
-            _mem_info_log("[I]: %s[MEM]%s getline() allocated %lu bytes at %p\n",
-                          _C(MEM), _C(CLEAR), len, line);
-
             // Get rid of newline
             if(line[read_len-1] == '\n')
                 line[read_len-1] = '\0';
@@ -147,10 +144,10 @@ void cmus_get_metadata(Arena * const ap, struct cmus_state * const cs) { /*{{{*/
             if(cs->status == 0) break; // Not playing
 
             // Free memory allocated by getline()
-            nfreen(line, "line: end of loop");
+            nqfree(line);
         }
-        if(line != NULL) // Clean up after getline
-            nfreen(line, "getline cleanup");
+        if(line != NULL) // Clean up if no lines were read
+            nqfree(line);
 
         fclose(child); // Close the file
         close(pipefd[PIPE_READ]); // Explicitly close pipe
