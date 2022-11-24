@@ -3,8 +3,10 @@
 
 #include <stdlib.h>
 
-#ifndef MEM_INFO_D
-#define MEM_INFO_D 0
+#ifdef MEM_INFO_D
+#define _mem_info_log(fmt, ...) do { fprintf(stderr, fmt, __VA_ARGS__); } while (0)
+#else
+#define _mem_info_log(...) do { } while (0)
 #endif
 
 // Comparison
