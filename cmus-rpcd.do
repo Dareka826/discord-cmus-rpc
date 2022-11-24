@@ -8,6 +8,7 @@ OBJ+=" ./src/snippets/build/arena/arena.o"
 OBJ+=" ./build/discord_stuff.o"
 OBJ+=" ./build/cmus_stuff.o"
 OBJ+=" ./build/main.o"
+OBJ+=" ./build/libdiscord-rpc.a"
 
 redo-ifchange ${OBJ}
 
