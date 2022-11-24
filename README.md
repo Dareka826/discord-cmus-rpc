@@ -15,9 +15,6 @@ Display current playing song in cmus on Discord with RPC
 git clone https://github.com/Dareka826/discord-cmus-rpc
 cd discord-cmus-rpc
 git submodule update --init
-cd discord-rpc
-./build.py libs
-cd ..
 redo
 ```
 
