@@ -1,7 +1,15 @@
 redo-ifchange ./config.sh
 . ./config.sh
 
-OBJ="./build/colors.o ./build/utils.o ./src/snippets/build/arena/arena.o ./build/discord_stuff.o ./build/cmus_stuff.o ./build/main.o"
+OBJ=""
+OBJ+=" ./build/colors.o"
+OBJ+=" ./build/utils.o"
+OBJ+=" ./src/snippets/build/arena/arena.o"
+OBJ+=" ./build/discord_stuff.o"
+OBJ+=" ./build/cmus_stuff.o"
+OBJ+=" ./build/main.o"
+OBJ+=" ./build/libdiscord-rpc.a"
+
 redo-ifchange ${OBJ}
 
 LDFLAGS="${LDFLAGS} -L./build -l:libdiscord-rpc.a"
