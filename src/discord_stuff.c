@@ -10,12 +10,12 @@ const char * const APP_ID = "976582643938377749";
 
 void free_presence_state(struct presence_state * const ps) { /*{{{*/
     assert(ps != NULL);
-    if(MEM_INFO_D) fprintf(stderr, "[I]: Freeing presence_state\n");
+    _mem_info_log("[I]: Freeing presence_state\n");
 
     if(ps->state)   nfreen(ps->state,   "presence_state state");
     if(ps->details) nfreen(ps->details, "presence_state details");
 
-    if(MEM_INFO_D) fprintf(stderr, "[I]: Finished freeing presence_state\n");
+    _mem_info_log("[I]: Finished freeing presence_state\n");
 } /*}}}*/
 
 // Functions to notify of events {{{

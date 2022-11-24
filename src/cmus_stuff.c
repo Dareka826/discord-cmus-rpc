@@ -130,15 +130,14 @@ void cmus_get_metadata(Arena * const ap, struct cmus_state * const cs) { /*{{{*/
         size_t len = 0;
         size_t read_len = 0; // Length of read-in line
 
-        if(MEM_INFO_D) fprintf(stderr, "[I]: Parsing cmus metadata\n");
+        _mem_info_log("[I]: Parsing cmus metadata\n");
 
         cs->status = -1; // For detecting errors and paused playback
 
         // Read each line of output from child
         while((read_len = getline(&line, &len, child)) != -1) {
-            if(MEM_INFO_D == 1)
-                fprintf(stderr, "[I]: %s[MEM]%s getline() allocated %lu bytes at %p\n",
-                        _C(MEM), _C(CLEAR), len, line);
+            _mem_info_log("[I]: %s[MEM]%s getline() allocated %lu bytes at %p\n",
+                          _C(MEM), _C(CLEAR), len, line);
 
             // Get rid of newline
             if(line[read_len-1] == '\n')
@@ -156,7 +155,7 @@ void cmus_get_metadata(Arena * const ap, struct cmus_state * const cs) { /*{{{*/
         fclose(child); // Close the file
         close(pipefd[PIPE_READ]); // Explicitly close pipe
 
-        if(MEM_INFO_D) fprintf(stderr, "[I]: Finished parsing cmus metadata\n");
+        _mem_info_log("[I]: Finished parsing cmus metadata\n");
     }
 } /*}}}*/
 
@@ -190,7 +189,7 @@ void create_status(Arena * const ap, /*{{{*/
     //   details = ""
     // }}}
 
-    if(MEM_INFO_D) fprintf(stderr, "[I]: Creating status from metadata\n");
+    _mem_info_log("[I]: Creating status from metadata\n");
 
     int state_len = 0;
 
@@ -268,5 +267,5 @@ void create_status(Arena * const ap, /*{{{*/
 
     ps->time_left = cs->duration - cs->position;
 
-    if(MEM_INFO_D) fprintf(stderr, "[I]: Finished creating status from metadata\n");
+    _mem_info_log("[I]: Finished creating status from metadata\n");
 } /*}}}*/
