@@ -9,17 +9,17 @@ void * xmallocn(size_t s, const char * const name) { /*{{{*/
     void * const p = malloc(s);
 
     if(p == NULL) {
-        _mem_info_log("%s[E]%s: malloc() failed, exiting...\n",
+        _mem_info_log("%s[E]%s: malloc failed\n",
                 _C(ERROR), _C(CLEAR));
         exit(1);
     }
 
     #ifdef MEM_INFO_D
     if(name != NULL)
-         _mem_info_log("[I]: %s[MEM]%s allocated %lu bytes at %p (%s%s%s)\n",
-                 _C(MEM), _C(CLEAR), s, p, _C(NAME), name, _C(CLEAR));
-    else _mem_info_log("[I]: %s[MEM]%s allocated %lu bytes at %p\n",
-                 _C(MEM), _C(CLEAR), s, p);
+         _mem_info_log("[I]: %s[MEM]%s malllc: %p [%lu] (%s%s%s)\n",
+                 _C(MEM), _C(CLEAR), p, s, _C(NAME), name, _C(CLEAR));
+    else _mem_info_log("[I]: %s[MEM]%s malloc: %p [%lu]\n",
+                 _C(MEM), _C(CLEAR), p, s);
     #endif
 
     return p;
@@ -34,17 +34,17 @@ void * xcallocn(size_t s, const char * const name) { /*{{{*/
     void * const p = calloc(1, s);
 
     if(p == NULL) {
-        _mem_info_log("%s[E]%s: calloc() failed, exiting...\n",
+        _mem_info_log("%s[E]%s: calloc failed\n",
                 _C(ERROR), _C(CLEAR));
         exit(1);
     }
 
     #ifdef MEM_INFO_D
     if(name != NULL)
-         _mem_info_log("[I]: %s[MEM]%s allocated %lu bytes at %p (%s%s%s)\n",
-                 _C(MEM), _C(CLEAR), s, p, _C(NAME), name, _C(CLEAR));
-    else _mem_info_log("[I]: %s[MEM]%s allocated %lu bytes at %p\n",
-                 _C(MEM), _C(CLEAR), s, p);
+         _mem_info_log("[I]: %s[MEM]%s calllc: %p [%lu] (%s%s%s)\n",
+                 _C(MEM), _C(CLEAR), p, s, _C(NAME), name, _C(CLEAR));
+    else _mem_info_log("[I]: %s[MEM]%s calloc: %p [%lu]\n",
+                 _C(MEM), _C(CLEAR), p, s);
     #endif
 
     return p;
@@ -58,9 +58,9 @@ void _nfreen(void * const p, const char * const name) { /*{{{*/
     #ifdef MEM_INFO_D
     if(p != NULL) {
         if(name != NULL)
-             _mem_info_log("[I]: %s[MEM]%s freeing %p (%s%s%s)\n",
+             _mem_info_log("[I]: %s[MEM]%s free: %p (%s%s%s)\n",
                      _C(MEM), _C(CLEAR), p, _C(NAME), name, _C(CLEAR));
-        else _mem_info_log("[I]: %s[MEM]%s freeing %p\n",
+        else _mem_info_log("[I]: %s[MEM]%s free: %p\n",
                      _C(MEM), _C(CLEAR), p);
     }
     #endif
