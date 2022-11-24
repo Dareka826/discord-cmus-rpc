@@ -29,7 +29,7 @@ int main() {
 
     Arena *cs_a = NULL,
           *ps_a = NULL,
-          *old_ps_a = create_arena();
+          *old_ps_a = create_arenan("old_ps");
 
     struct cmus_state cs;
     struct presence_state ps, old_ps;
@@ -43,10 +43,8 @@ int main() {
     // Main logic {{{
     while(requested_exit == 0) {
         _mem_info_log("\n"); // Better visibility
-        _mem_info_log("%s[MEM]%s New Arena: cs_a\n", _C(GREEN), _C(CLEAR));
-        cs_a = create_arena();
-        _mem_info_log("%s[MEM]%s New Arena: ps_a\n", _C(GREEN), _C(CLEAR));
-        ps_a = create_arena();
+        cs_a = create_arenan("cs_a");
+        ps_a = create_arenan("ps_a");
 
         // Clear out variables
         memset(&cs, 0, sizeof(cs));
@@ -89,7 +87,6 @@ int main() {
             old_status = 1;
 
             // Free old data
-            _mem_info_log("%s[MEM]%s Free Arena: old_ps_a\n", _C(GREEN), _C(CLEAR));
             nfree_arena(old_ps_a);
 
             // Move new data into old
@@ -109,7 +106,6 @@ int main() {
             }
         }
 
-        _mem_info_log("%s[MEM]%s Free Arena: cs_a\n", _C(GREEN), _C(CLEAR));
         nfree_arena(cs_a);
 
         _mem_info_log("\n"); // Better visibility
